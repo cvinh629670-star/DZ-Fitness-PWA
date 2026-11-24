@@ -23,7 +23,7 @@ button, .filebtn { cursor: pointer; }
 .i { width: 1em; height: 1em; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .app { width: min(100%, var(--frame)); margin: auto; padding: 0 var(--gutter) calc(108px + env(safe-area-inset-bottom)); }
 .screen-locked, .screen-locked body { height: 100%; overflow: hidden; overscroll-behavior: none; }
-.app:is([data-view="home"], [data-view="nutrition"]) {
+.app[data-view]:not([data-view="work"]) {
   height: 100vh;
   height: 100dvh;
   padding-bottom: calc(82px + env(safe-area-inset-bottom));
@@ -38,9 +38,9 @@ button, .filebtn { cursor: pointer; }
 .logo, .emoji, .ticon, .srow i { flex: none; display: grid; place-items: center; width: 48px; height: 48px; border-radius: 14px; font-size: 24px; }
 .logo { color: #121807; background: var(--lime); }
 .home .header { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-.home, .nutrition-screen { height: 100%; min-height: 0; display: grid; }
+.home, .paged-screen { height: 100%; min-height: 0; display: grid; }
 .home { grid-template-rows: auto minmax(0, 1fr) auto auto; }
-.home .header, .nutrition-screen .header { padding-block: calc(14px + env(safe-area-inset-top)) 14px; }
+.home .header, .paged-screen .header { padding-block: calc(14px + env(safe-area-inset-top)) 14px; }
 .range { color: var(--mute); padding: 9px 13px; border: 1px solid var(--line); border-radius: 999px; font-size: 12px; }
 .range .i { color: var(--lime); font-size: 16px; }
 .hero {
@@ -151,8 +151,8 @@ button, .filebtn { cursor: pointer; }
 .energy table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .energy td, .energy th { padding: 6px 2px; text-align: left; border-bottom: 1px solid var(--line); }
 .energy td button { width: 44px; min-height: 44px; margin: 0; padding: 0; text-align: center; }
-.nutrition-screen { grid-template-rows: auto minmax(0, 1fr) 38px; }
-.nutrition-pages {
+.paged-screen { grid-template-rows: auto minmax(0, 1fr) 38px; }
+.page-track {
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior-y: contain;
@@ -162,20 +162,22 @@ button, .filebtn { cursor: pointer; }
   border-radius: 19px;
   background: var(--panel);
 }
-.nutrition-pages::-webkit-scrollbar { display: none; }
-.nutrition-pages > .energy {
+.page-track::-webkit-scrollbar { display: none; }
+.paged-panel {
   height: 100%;
   overflow: auto;
-  margin: 0;
-  border: 0;
-  border-radius: 0;
+  padding: clamp(14px, 2.3vw, 24px);
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
-.nutrition-pager { display: flex; justify-content: center; }
-.nutrition-pager button { display: grid; place-items: center; width: 44px; height: 38px; padding: 0; border: 0; background: none; }
-.nutrition-pager span { width: 7px; height: 7px; border-radius: 999px; background: var(--mute); transition: width .18s, background .18s; }
-.nutrition-pager [aria-current="true"] span { width: 20px; background: var(--lime); }
+.paged-panel > :is(.energy, .analytics) { margin: 0; }
+.paged-panel > .energy, .paged-panel .analytics-panel { padding: 0; border: 0; background: transparent; }
+.paged-panel > h2 { margin: 0 0 12px; font-size: 19px; }
+.paged-panel .srow { background: var(--paper); }
+.page-dots { display: flex; justify-content: center; }
+.page-dots button { display: grid; place-items: center; width: 44px; height: 38px; padding: 0; border: 0; background: none; }
+.page-dots span { width: 7px; height: 7px; border-radius: 999px; background: var(--mute); transition: width .18s, background .18s; }
+.page-dots [aria-current="true"] span { width: 20px; background: var(--lime); }
 .line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .line-chart svg { display: block; width: 100%; max-height: 390px; }
 .line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -236,8 +238,8 @@ button, .filebtn { cursor: pointer; }
   .home .workcard { padding: 8px 11px; font-size: 18px; gap: 9px; border-radius: 15px; }
   .home .workcard .emoji { width: 37px; height: 37px; border-radius: 10px; font-size: 19px; }
   .home .workcard small { margin: 3px 0 6px; }
-  .nutrition-pages > .energy:first-child .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .nutrition-pages > .energy:first-child .etile { padding: 8px; }
+  [data-view="nutrition"] .paged-panel:first-child .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  [data-view="nutrition"] .paged-panel:first-child .etile { padding: 8px; }
 }
 @media (max-width: 719px) and (max-height: 650px) {
   .home .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -247,15 +249,15 @@ button, .filebtn { cursor: pointer; }
   .home .workcard small { font-size: 10px; overflow-wrap: anywhere; }
 }
 @media (max-height: 520px) {
-  .home .header, .nutrition-screen .header { padding-block: calc(6px + env(safe-area-inset-top)) 6px; }
+  .home .header, .paged-screen .header { padding-block: calc(6px + env(safe-area-inset-top)) 6px; }
   .home .hero h2 { max-width: none; font-size: clamp(20px, 7dvh, 38px); }
   .home .hero h2 br { display: none; }
   .home .hero p { margin-top: 3px; font-size: 12px; }
   .home .section-title { margin-block: 4px; font-size: 16px; }
   .home .workcard { display: block; min-height: 0; padding: 7px; }
   .home .workcard .emoji, .home .workcard .arrow { display: none; }
-  .nutrition-screen .header h1 { font-size: 26px; }
-  .nutrition-screen .header .sub { margin-top: 4px; }
+  .paged-screen .header h1 { font-size: 26px; }
+  .paged-screen .header .sub { margin-top: 4px; }
   .keypad-overlay { overflow: auto; align-items: start; }
   .keypad-grid button { min-height: 38px; }
 }
