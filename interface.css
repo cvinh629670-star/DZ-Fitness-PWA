@@ -47,7 +47,7 @@ button, .filebtn { cursor: pointer; }
   background: radial-gradient(ellipse at 85% 25%, #39423a, transparent 68%), #11171b;
 }
 .hero img, .hero::after { position: absolute; inset: 0; width: 100%; height: 100%; }
-.hero img { object-fit: cover; object-position: center 44%; z-index: -2; }
+.hero img { top: -24px; height: calc(100% + 24px); translate: 0 var(--hero-shift, 0px); object-fit: cover; object-position: center 44%; z-index: -2; }
 .hero::after { content: ""; z-index: -1; background: linear-gradient(90deg, #0b0e11 0%, #0b0e11ed 26%, #0b0e1126 80%), linear-gradient(0deg, #0b0e11c9, transparent 70%); }
 .hero h2 { max-width: 11ch; margin: 0; font-size: clamp(42px, 8vw, 96px); font-weight: 800; letter-spacing: -.078em; line-height: 1.03; }
 .hero p { color: #d6dfe4; margin: 18px 0 0; font-size: 14px; }
@@ -83,9 +83,6 @@ button, .filebtn { cursor: pointer; }
 .foot { position: fixed; z-index: 5; inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: min(620px, calc(100% - 24px)); margin: auto; padding: 5px; border: 1px solid var(--line); border-radius: 20px; background: #171d22f5; box-shadow: 0 12px 40px #0008; backdrop-filter: blur(18px); }
 .foot button { min-height: 52px; display: grid; justify-items: center; align-content: center; row-gap: 4px; padding: 2px; border: 1px solid transparent; border-radius: 14px; background: transparent; color: var(--mute); font-size: 10px; font-weight: 700; }
 .foot-icon { display: grid; font-size: 19px; }
-.foot-label { max-height: 16px; overflow: hidden; transition: opacity .16s ease, max-height .2s ease; }
-.dock-compact .foot button { min-height: 44px; row-gap: 0; }
-.dock-compact .foot-label { max-height: 0; opacity: 0; }
 .foot button.active { border-color: #d6ff5338; background: linear-gradient(160deg, #d6ff5329, #d6ff530d); color: var(--lime); }
 .top { padding-bottom: 22px; }
 .topline { display: flex; align-items: center; gap: 12px; }
@@ -170,7 +167,6 @@ button, .filebtn { cursor: pointer; }
 .keypad-grid .key-del { color: #ffb1b8; }
 .keypad-actions button { text-align: center; }
 .settings button, .filebtn, .save, .sugall, .sug, .energy button, .keypad-actions button, .keypad-grid button, .back, .keypad-close, .foot button { transition: border-color .15s, filter .15s, transform .15s; }
-.foot button { transition: border-color .15s, filter .15s, transform .15s, min-height .2s ease, row-gap .2s ease; }
 :is(button, .filebtn):not(:disabled):active { filter: brightness(.86); transform: translateY(1px); }
 .hide { display: none !important; }
 
