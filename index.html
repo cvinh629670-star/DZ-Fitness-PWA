@@ -84,15 +84,38 @@ function exerciseMetrics(entry) {
   };
 }
 
-function chartBars(points, empty) {
-  const recent = points.filter(point => Number.isFinite(point.value));
-  if (!recent.length) return '<p class="hint">' + empty + '</p>';
-  const max = Math.max(1, ...recent.map(point => point.value));
-  return '<ul class="chart-bars">' + recent.map(({ day, value }) =>
-    '<li><time datetime="' + day + '">' + fmt(day) + '</time>' +
-    '<div class="chart-track" aria-hidden="true"><span style="width:' + (value / max * 100) + '%"></span></div>' +
-    '<strong>' + chartNumber.format(value) + '</strong></li>'
-  ).join('') + '</ul>';
+function lineChart(points, start, end, unit, empty) {
+  if (!points.length) return '<p class="hint">' + empty + '</p>';
+  const peak = Math.max(1, ...points.map(point => point.value));
+  const magnitude = 10 ** Math.floor(Math.log10(peak / 4));
+  const step = [1, 2, 2.5, 5, 10].find(factor => factor * magnitude >= peak / 4) * magnitude;
+  const left = 55, right = 334, top = 18, bottom = 155;
+  const x = day => left + (Date.parse(day) - Date.parse(start)) / (Date.parse(end) - Date.parse(start)) * (right - left);
+  const y = value => bottom - value / (4 * step) * (bottom - top);
+  const grid = Array.from({ length: 5 }, (_, i) => {
+    const value = i * step;
+    return `<line x1="${left}" x2="${right}" y1="${y(value)}" y2="${y(value)}"/>
+      <text x="${left - 7}" y="${y(value)}" text-anchor="end" dominant-baseline="middle">${chartNumber.format(value)}</text>`;
+  }).join('');
+  const labels = [start, offsetTrainingDay(start, 10), offsetTrainingDay(start, 20), end].map(day =>
+    `<text x="${x(day)}" y="176" text-anchor="middle">${fmt(day).slice(0, 5)}</text>`
+  ).join('');
+  const path = points.map(({ day, value }) => `${x(day)},${y(value)}`).join(' ');
+  const markers = points.map(({ day, value }) =>
+    `<circle cx="${x(day)}" cy="${y(value)}" r="3.5"><title>${fmt(day)} · ${chartNumber.format(value)} ${unit}</title></circle>`
+  ).join('');
+  const rows = points.map(({ day, value }) =>
+    `<tr><td><time datetime="${day}">${fmt(day)}</time></td><td>${chartNumber.format(value)}</td></tr>`
+  ).join('');
+  return `<div class="line-chart">
+    <svg viewBox="0 0 360 188" aria-hidden="true">
+      <g class="chart-grid">${grid}</g>${labels}
+      <polyline points="${path}"/>${markers}
+    </svg>
+    <details><summary>Xem số liệu từng ngày</summary>
+      <table><thead><tr><th scope="col">Ngày</th><th scope="col">${unit}</th></tr></thead><tbody>${rows}</tbody></table>
+    </details>
+  </div>`;
 }
 
 function analytics() {
@@ -134,7 +157,7 @@ function analytics() {
       <p class="hint">30 ngày · ${periodLabel}</p>
       <label class="chart-filter">Lịch tập <select data-chart="volume">${option('all', 'Tất cả', group)}${Object.keys(routines).map(r => option(r, cap(r), group)).join('')}</select></label>
       <p class="hint">Kg × tổng rep. Một số rep được nhân với số set. Dạng 8/10/10 cộng từng set. Chỉ tính bài có tạ và tổng rep xác định được.</p>
-      ${chartBars(volumePoints, 'Chưa có buổi đủ dữ liệu để tính volume.')}
+      ${lineChart(volumePoints, start, end, 'kg × rep', 'Chưa có buổi đủ dữ liệu để tính volume.')}
       ${volumePoints.length ? '<p class="hint">Tổng volume: <strong>' + chartNumber.format(volumePoints.reduce((sum, point) => sum + point.value, 0)) + '</strong> kg × rep</p>' : ''}
     </section>
     <section class="analytics-panel" style="--chart-accent:${colors[track]}" aria-labelledby="progress-title">
@@ -142,7 +165,7 @@ function analytics() {
       <p class="hint">30 ngày · ${periodLabel}</p>
       <label class="chart-filter">Bài tập <select data-chart="exercise">${Object.entries(routines).map(([r, names]) => '<optgroup label="' + cap(r) + '">' + names.map((name, i) => option(r + ':' + i, name, analyticsFilters.exercise)).join('') + '</optgroup>').join('')}</select></label>
       <label class="chart-filter">Chỉ số <select data-chart="metric">${option('weight', 'Mức tạ (kg)', metric)}${option('reps', 'Rep thấp nhất mỗi set', metric)}</select></label>
-      ${chartBars(points, 'Chưa có số liệu cho chỉ số này trong 30 ngày.')}
+      ${lineChart(points, start, end, unit, 'Chưa có số liệu cho chỉ số này trong 30 ngày.')}
       ${current ? '<p class="progress-summary">Gần nhất <strong>' + chartNumber.format(current.value) + ' ' + unit + '</strong> · ' + fmt(current.day) + (first ? '<br>So với buổi đầu kỳ ' + fmt(first.day) + ': <strong>' + (delta > 0 ? '+' : '') + chartNumber.format(delta) + ' ' + unit + '</strong>' : '') + '</p>' : ''}
       ${target ? '<p class="progress-target"><strong>Gợi ý buổi sau</strong><br>' + (target.set ? esc(target.set) + ' set · ' : '') + esc(target.rep) + ' rep · ' + (target.kg ? esc(target.kg) + ' kg' : 'tạ thân') + '</p>' : ''}
     </section>

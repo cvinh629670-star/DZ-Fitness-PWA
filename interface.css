@@ -75,8 +75,8 @@ button, .filebtn { cursor: pointer; }
 .workcard .arrow { color: var(--accent); font-size: 17px; }
 .workcard:disabled { cursor: not-allowed; transform: none; border-color: var(--line); background: var(--paper); color: var(--mute); }
 .workcard:disabled .arrow { visibility: hidden; }
-.bar, .chart-track { display: block; height: 5px; overflow: hidden; border-radius: 999px; background: #ffffff22; }
-.bar u, .chart-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent, var(--lime)); transition: width .22s; }
+.bar { display: block; height: 5px; overflow: hidden; border-radius: 999px; background: #ffffff22; }
+.bar u { display: block; height: 100%; border-radius: inherit; background: var(--accent, var(--lime)); transition: width .22s; }
 .foot { position: fixed; z-index: 5; inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: min(620px, calc(100% - 24px)); margin: auto; padding: 5px; border: 1px solid var(--line); border-radius: 20px; background: #171d22f5; box-shadow: 0 12px 40px #0008; backdrop-filter: blur(18px); }
 .foot button { min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 2px; border: 0; border-radius: 14px; background: transparent; color: var(--mute); font-size: 10px; font-weight: 700; }
 .foot button span { display: grid; font-size: 19px; }
@@ -126,11 +126,17 @@ button, .filebtn { cursor: pointer; }
 .energy table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .energy td, .energy th { padding: 6px 2px; text-align: left; border-bottom: 1px solid var(--line); }
 .energy td button { width: auto; padding: 6px 9px; margin: 0; }
-.chart-bars { display: grid; gap: 10px; padding: 0; list-style: none; }
-.chart-bars li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 9px; color: var(--mute); font-size: 12px; }
-.chart-bars strong { color: var(--ink); text-align: right; }
-.chart-track { height: 9px; }
-.chart-track span { background: var(--chart-accent, var(--lime)); }
+.line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.line-chart svg { display: block; width: 100%; }
+.line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
+.chart-grid line { stroke: var(--line); }
+.line-chart polyline { fill: none; stroke: var(--chart-accent, var(--lime)); stroke-width: 2; stroke-linejoin: round; }
+.line-chart circle { fill: var(--chart-accent, var(--lime)); stroke: var(--paper); stroke-width: 1; }
+.line-chart details { margin-inline: 12px; color: var(--mute); font-size: 12px; }
+.line-chart summary { cursor: pointer; }
+.line-chart table { width: 100%; margin-top: 6px; border-collapse: collapse; text-align: left; }
+.line-chart :is(th, td) { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.line-chart :is(th, td):last-child { text-align: right; }
 .progress-summary, .progress-target { font-size: 13px; line-height: 1.6; }
 .progress-target { padding: 12px; border-left: 2px solid var(--lime); border-radius: 8px; background: var(--paper); }
 .keypad-overlay { position: fixed; inset: 0; z-index: 30; display: flex; align-items: end; justify-content: center; background: #06090bb8; backdrop-filter: blur(5px); }
