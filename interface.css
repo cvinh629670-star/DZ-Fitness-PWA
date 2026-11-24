@@ -73,6 +73,8 @@ button, .filebtn { cursor: pointer; }
 .workcard .emoji, .ticon, .srow i { color: var(--accent); background: color-mix(in srgb, var(--accent) 12%, var(--paper)); }
 .workcard small { display: block; margin: 5px 0 13px; color: var(--mute); font-size: 12px; font-weight: 500; line-height: 1.4; }
 .workcard .arrow { color: var(--accent); font-size: 17px; }
+.workcard:disabled { cursor: not-allowed; transform: none; border-color: var(--line); background: var(--paper); color: var(--mute); }
+.workcard:disabled .arrow { visibility: hidden; }
 .bar, .chart-track { display: block; height: 5px; overflow: hidden; border-radius: 999px; background: #ffffff22; }
 .bar u, .chart-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent, var(--lime)); transition: width .22s; }
 .foot { position: fixed; z-index: 5; inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: min(620px, calc(100% - 24px)); margin: auto; padding: 5px; border: 1px solid var(--line); border-radius: 20px; background: #171d22f5; box-shadow: 0 12px 40px #0008; backdrop-filter: blur(18px); }
@@ -143,7 +145,7 @@ button, .filebtn { cursor: pointer; }
 .hide { display: none !important; }
 
 @media (hover: hover) {
-  .workcard:hover { transform: translateY(-3px); border-color: var(--accent); }
+  .workcard:not(:disabled):hover { transform: translateY(-3px); border-color: var(--accent); }
   .foot button:hover { color: var(--lime); }
   :is(.settings button, .filebtn, .sug, .sugall, .keypad-grid button):hover { border-color: var(--lime); }
 }
