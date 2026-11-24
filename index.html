@@ -1,4 +1,4 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=22"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=23"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
 const routines={push:['Landmine Press','Bench Press','Incline Smith Machine Press','Incline Dumbbell Press','Dips','Lateral Raise Combo (Lateral / Front / Overhead Press)','Tricep Extension','Tricep Pushdown'],pull:['Weighted Pull-up','Seated Cable Row','Barbell Row','Face Pull','Rear Delt Cable Fly','Cable Biceps Curl','Hammer Curl','Wrist Combo (Curl / Reverse Curl / Twist)'],leg:['Jump Squat','Deadlift','Leg Press','Lunge Combo','Leg Extension','Leg Curl','Calf Kick','Abs']};const I=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;const colors={push:'#ffb6c8',pull:'#f6afd2',leg:'#ffc2d1'},icons={push:I('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),pull:I('<path d="M3 4h18M8 4v5M16 4v5"/><circle cx="12" cy="12" r="2.6"/><path d="M9 21v-3.5a3 3 0 0 1 6 0V21"/>'),leg:I('<path d="M4 20h5v-5h5v-5h6"/><path d="M15 5h5v5M20 5l-6 6"/>')},IC={cal:I('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),home:I('<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>'),stats:I('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'),set:I('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),next:I('<path d="M9 6l6 6-6 6"/>')};let view='home',routine='push',date=todayStr();let data={};try{data=JSON.parse(localStorage.getItem('dzGymLogV2')||'{}')}catch{}const app=document.getElementById('app');const fmt=d=>d.split('-').reverse().join('/');const key=(r,d,i)=>`${r}_${d}_${i}`;const stored=(r,d,i)=>data[key(r,d,i)]||{};function persist(){localStorage.setItem('dzGymLogV2',JSON.stringify(data))}function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const has=v=>v&&(v.set||v.rep||v.kg);
 function sessions(r){const s=new Set();for(const k of Object.keys(data)){const m=k.match(/^([a-z]+)_(\d{4}-\d\d-\d\d)_\d+$/);if(m&&m[1]===r&&has(data[k]))s.add(m[2])}return[...s].sort()}
@@ -189,48 +189,121 @@ function exerciseMetrics(entry) {
   };
 }
 
+const chartAxisNumber = new Intl.NumberFormat('vi-VN', { notation: 'compact', maximumFractionDigits: 1 });
+
 function combinedChart(volume, progress, start, end, unit) {
-  if (!volume.length && !progress.length) return '<p class="hint">Chưa có số liệu phù hợp trong khoảng này.</p>';
+  if (!volume.length && !progress.length) {
+    return `<div class="chart-empty">${IC.stats}<div><strong>Chưa có số liệu phù hợp</strong>
+      <p>Biểu đồ sẽ hiện khi lịch tập hoặc bài tập đang chọn có số liệu.</p></div></div>`;
+  }
   const dayOffset = day => (Date.parse(day) - Date.parse(start)) / 86400000;
   const toPairs = points => points.map(({ day, value }) => [dayOffset(day), value]);
   const [[volumeTicks, volumeCoords], [progressTicks, progressCoords], dates, left, right, bottom] =
     trainingChart.layout(toPairs(volume), toPairs(progress), dayOffset(end));
   const grid = volumeTicks.map(([, y]) => `<line x1="${left}" x2="${right}" y1="${y}" y2="${y}"/>`).join('');
   const axis = (ticks, x, anchor, color) => `<g class="${color}">${ticks.map(([value, y]) =>
-    `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle">${chartNumber.format(value)}</text>`
+    `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle">${chartAxisNumber.format(value)}</text>`
   ).join('')}</g>`;
   const labels = dates.map(([offset, x]) =>
-    `<text x="${x}" y="${bottom + 19}" text-anchor="middle">${fmt(offsetTrainingDay(start, offset)).slice(0, 5)}</text>`
+    `<text x="${x}" y="${bottom + 20}" text-anchor="middle">${fmt(offsetTrainingDay(start, offset)).slice(0, 5)}</text>`
   ).join('');
-  const draw = (coords, points, pointUnit, color) => `<g class="${color}">
-    <polyline points="${coords.map(([x, y]) => `${x},${y}`).join(' ')}"/>
-    ${coords.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3.6"><title>${fmt(points[i].day)} · ${chartNumber.format(points[i].value)} ${pointUnit}</title></circle>`).join('')}
-  </g>`;
-  const volumeByDay = new Map(volume.map(({ day, value }) => [day, value]));
-  const progressByDay = new Map(progress.map(({ day, value }) => [day, value]));
-  const days = [...new Set([...volumeByDay.keys(), ...progressByDay.keys()])].sort();
-  const cell = (values, day) => values.has(day) ? chartNumber.format(values.get(day)) : '—';
-  return `<div class="line-chart">
+  const readings = new Map();
+  const collect = (points, coords, series) => points.forEach(({ day, value }, index) => {
+    const reading = readings.get(day) || { x: coords[index][0] };
+    reading[series] = chartNumber.format(value);
+    readings.set(day, reading);
+  });
+  collect(volume, volumeCoords, 'volume');
+  collect(progress, progressCoords, 'progress');
+  const days = [...readings.keys()].sort();
+  const selected = days.at(-1);
+  const latest = readings.get(selected);
+  const polyline = coords => coords.map(([x, y]) => `${x},${y}`).join(' ');
+  const draw = (coords, points, color) => coords.length ? `<g class="${color}">
+    <polyline points="${polyline(coords)}" vector-effect="non-scaling-stroke"/>
+    ${coords.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="3.4" data-day="${points[i].day}" class="${points[i].day === selected ? 'selected-point' : ''}" vector-effect="non-scaling-stroke"><title>${fmt(points[i].day)} · ${chartNumber.format(points[i].value)} ${unit}</title></circle>`).join('')}
+  </g>` : '';
+  const area = volumeCoords.length > 1
+    ? `<polygon points="${volumeCoords[0][0]},${bottom} ${polyline(volumeCoords)} ${volumeCoords.at(-1)[0]},${bottom}" fill="url(#volume-area)"/>` : '';
+  return `<div class="line-chart" data-selected="${days.length - 1}">
     <div class="chart-legend">
-      <span class="chart-volume">Volume · kg × rep${volume.length ? '' : ' · Chưa có dữ liệu'}</span>
-      <span class="chart-progress">Tăng tiến · ${unit}${progress.length ? '' : ' · Chưa có dữ liệu'}</span>
+      <span class="chart-volume"><b>Volume</b> · Trục trái${volume.length ? '' : ' · Chưa có số liệu'}</span>
+      <span class="chart-progress"><b>Tăng tiến</b> · Trục phải${progress.length ? '' : ' · Chưa có số liệu'}</span>
+      <span class="chart-unit">${unit}</span>
     </div>
-    <svg viewBox="0 0 400 198" aria-hidden="true">
-      ${volume.length ? `<g class="chart-volume"><text x="${left - 7}" y="13" text-anchor="end">kg × rep</text></g>` : ''}
-      ${progress.length ? `<g class="chart-progress"><text x="${right + 7}" y="13">${unit}</text></g>` : ''}
+    <svg class="chart-plot" viewBox="0 0 400 198" data-left="${left}" data-right="${right}" aria-hidden="true">
+      <defs><linearGradient id="volume-area" x2="0" y2="1">
+        <stop offset="0%" stop-opacity=".23"/><stop offset="100%" stop-opacity="0"/>
+      </linearGradient></defs>
       <g class="chart-grid">${grid}</g>
-      <line x1="${left}" x2="${right}" y1="${bottom}" y2="${bottom}" stroke="#9aabba" vector-effect="non-scaling-stroke"/>
+      ${area}
+      <line class="chart-baseline" x1="${left}" x2="${right}" y1="${bottom}" y2="${bottom}" vector-effect="non-scaling-stroke"/>
       ${labels}
-      ${volume.length ? axis(volumeTicks, left - 7, 'end', 'chart-volume') + draw(volumeCoords, volume, 'kg × rep', 'chart-volume') : ''}
-      ${progress.length ? axis(progressTicks, right + 7, 'start', 'chart-progress') + draw(progressCoords, progress, unit, 'chart-progress') : ''}
+      ${volume.length ? axis(volumeTicks, left - 7, 'end', 'chart-volume') : ''}
+      ${progress.length ? axis(progressTicks, right + 7, 'start', 'chart-progress') : ''}
+      ${draw(volumeCoords, volume, 'chart-volume')}${draw(progressCoords, progress, 'chart-progress')}
     </svg>
-    <details><summary>Xem số liệu từng ngày</summary>
-      <table><thead><tr><th scope="col">Ngày</th><th scope="col">Volume (kg × rep)</th><th scope="col">Tăng tiến (${unit})</th></tr></thead>
-      <tbody>${days.map(day => `<tr><td><time datetime="${day}">${fmt(day)}</time></td><td>${cell(volumeByDay, day)}</td><td>${cell(progressByDay, day)}</td></tr>`).join('')}</tbody></table>
+    <div class="chart-inspector">
+      <div class="chart-date-controls">
+        <button class="chart-step" type="button" data-step="-1" aria-label="Ngày có dữ liệu trước" ${days.length === 1 ? 'disabled' : ''}>${IC.next}</button>
+        <time class="chart-selected-date" datetime="${selected}">${fmt(selected)}</time>
+        <button class="chart-step" type="button" data-step="1" aria-label="Ngày có dữ liệu sau" disabled>${IC.next}</button>
+      </div>
+      <dl class="chart-readings" aria-live="polite">
+        <div class="chart-volume"><dt>Volume</dt><dd>${latest.volume ?? '—'}</dd></div>
+        <div class="chart-progress"><dt>Tăng tiến</dt><dd>${latest.progress ?? '—'}</dd></div>
+      </dl>
+    </div>
+    <details class="chart-data"><summary>Xem số liệu từng ngày</summary>
+      <table><thead><tr><th scope="col">Ngày</th><th scope="col">Volume (${unit})</th><th scope="col">Tăng tiến (${unit})</th></tr></thead>
+      <tbody>${days.map(day => {
+        const reading = readings.get(day);
+        return `<tr data-x="${reading.x}"><td><time datetime="${day}">${fmt(day)}</time></td><td>${reading.volume ?? '—'}</td><td>${reading.progress ?? '—'}</td></tr>`;
+      }).join('')}</tbody></table>
     </details>
   </div>`;
 }
 
+function selectChartReading(chart, index) {
+  const rows = chart.querySelector('tbody').rows;
+  if (index < 0 || index >= rows.length || index === Number(chart.dataset.selected)) return;
+  const row = rows[index];
+  const selected = row.querySelector('time');
+  chart.dataset.selected = index;
+  const dateLabel = chart.querySelector('.chart-selected-date');
+  dateLabel.dateTime = selected.dateTime;
+  dateLabel.textContent = selected.textContent;
+  const [volume, progress] = chart.querySelectorAll('.chart-readings dd');
+  volume.textContent = row.cells[1].textContent;
+  progress.textContent = row.cells[2].textContent;
+  const [backward, forward] = chart.querySelectorAll('.chart-step');
+  backward.disabled = index === 0;
+  forward.disabled = index === rows.length - 1;
+  chart.querySelectorAll('.selected-point').forEach(point => point.classList.remove('selected-point'));
+  chart.querySelectorAll(`circle[data-day="${selected.dateTime}"]`).forEach(point => point.classList.add('selected-point'));
+}
+
+document.addEventListener('click', event => {
+  const step = event.target.closest?.('.chart-step');
+  if (step) {
+    const chart = step.closest('.line-chart');
+    selectChartReading(chart, Number(chart.dataset.selected) + Number(step.dataset.step));
+    return;
+  }
+  const plot = event.target.closest?.('.chart-plot');
+  if (!plot) return;
+  const transform = plot.getScreenCTM();
+  if (!transform) return;
+  const { x } = new DOMPoint(event.clientX, event.clientY).matrixTransform(transform.inverse());
+  if (x < Number(plot.dataset.left) - 5 || x > Number(plot.dataset.right) + 5) return;
+  const chart = plot.closest('.line-chart');
+  const rows = chart.querySelector('tbody').rows;
+  let nearest = 0;
+  for (let i = 1; i < rows.length; i++) {
+    if (Math.abs(Number(rows[i].dataset.x) - x) < Math.abs(Number(rows[nearest].dataset.x) - x)) nearest = i;
+  }
+  selectChartReading(chart, nearest);
+});
 function analytics() {
   const start = '2026-11-13';
   const end = todayStr();
@@ -260,20 +333,37 @@ function analytics() {
   const delta = first ? current.value - first.value : 0;
   const latest = history.at(-1);
   const target = latest && Number.isFinite(exerciseMetrics(latest.entry).reps) ? suggest(latest.entry) : null;
+  const totalVolume = volumePoints.reduce((sum, point) => sum + point.value, 0);
   const option = (value, label, selected) => '<option value="' + value + '"' + (value === selected ? ' selected' : '') + '>' + esc(label) + '</option>';
   return `<div class="analytics">
     <section class="analytics-panel" aria-labelledby="training-chart-title">
-      <h2 id="training-chart-title">Volume và tăng tiến</h2>
-      <p class="hint">${end >= start ? periodLabel : 'Bắt đầu từ ' + fmt(start)}</p>
+      <header class="chart-heading">
+        <h2 id="training-chart-title">Volume và tăng tiến</h2>
+        <p>${IC.cal}${end >= start ? periodLabel : 'Bắt đầu từ ' + fmt(start)}</p>
+      </header>
       <div class="chart-filters">
-      <label class="chart-filter">Lịch tập <select data-chart="volume">${option('all', 'Tất cả', group)}${Object.keys(routines).map(r => option(r, cap(r), group)).join('')}</select></label>
-      <label class="chart-filter">Bài tập <select data-chart="exercise">${Object.entries(routines).map(([r, names]) => '<optgroup label="' + cap(r) + '">' + names.map((name, i) => option(r + ':' + i, name, analyticsFilters.exercise)).join('') + '</optgroup>').join('')}</select></label>
+        <label class="chart-filter">Lịch tính volume<select data-chart="volume">${option('all', 'Tất cả', group)}${Object.keys(routines).map(r => option(r, cap(r), group)).join('')}</select></label>
+        <label class="chart-filter">Bài tập tăng tiến<select data-chart="exercise">${Object.entries(routines).map(([r, names]) => '<optgroup label="' + cap(r) + '">' + names.map((name, i) => option(r + ':' + i, name, analyticsFilters.exercise)).join('') + '</optgroup>').join('')}</select></label>
       </div>
-      ${combinedChart(volumePoints, points, start, end, unit)}
-      <p class="hint">Volume = kg × rep × set khi các set cùng số rep. Với 8/10/10, volume = kg × (8 + 10 + 10). Tăng tiến = kg × số rep cao nhất trong một set.</p>
-      ${volumePoints.length ? '<p class="hint">Tổng volume: <strong>' + chartNumber.format(volumePoints.reduce((sum, point) => sum + point.value, 0)) + '</strong> kg × rep</p>' : ''}
-      ${current ? '<p class="progress-summary">Gần nhất <strong>' + chartNumber.format(current.value) + ' ' + unit + '</strong> · ' + fmt(current.day) + (first ? '<br>So với buổi đầu kỳ ' + fmt(first.day) + ': <strong>' + (delta > 0 ? '+' : '') + chartNumber.format(delta) + ' ' + unit + '</strong>' : '') + '</p>' : ''}
-      ${target ? '<p class="progress-target"><strong>Gợi ý buổi sau</strong><br>' + (target.set ? esc(target.set) + ' set · ' : '') + esc(target.rep) + ' rep · ' + (target.kg ? esc(target.kg) + ' kg' : 'tạ thân') + '</p>' : ''}
+      <div class="chart-board">
+        ${combinedChart(volumePoints, points, start, end, unit)}
+        ${volumePoints.length || current || target ? `<div class="chart-overview">
+          ${volumePoints.length ? `<div class="chart-overview-card chart-volume">
+            <h3>Tổng volume</h3><p><strong>${chartNumber.format(totalVolume)}</strong> <span>${unit}</span></p>
+          </div>` : ''}
+          ${current ? `<div class="chart-overview-card chart-progress">
+            <h3>Tăng tiến gần nhất</h3><p><strong>${chartNumber.format(current.value)}</strong> <span>${unit}</span></p>
+            <time datetime="${current.day}">${fmt(current.day)}</time>
+            ${first ? `<small><b>${delta > 0 ? '+' : ''}${chartNumber.format(delta)}</b> so với buổi ${fmt(first.day)}</small>` : ''}
+          </div>` : ''}
+          ${target ? `<div class="chart-overview-card chart-target">
+            <h3>Gợi ý buổi sau</h3><p>${target.set ? esc(target.set) + ' set · ' : ''}${esc(target.rep)} rep · ${target.kg ? esc(target.kg) + ' kg' : 'tạ thân'}</p>
+          </div>` : ''}
+        </div>` : ''}
+      </div>
+      <details class="chart-method"><summary>Cách tính chỉ số</summary>
+        <p class="hint">Volume là kg × rep × set khi các set cùng số rep. Với 8/10/10, volume bằng kg × (8 + 10 + 10). Tăng tiến là kg × số rep cao nhất trong một set.</p>
+      </details>
     </section>
   </div>`;
 }
