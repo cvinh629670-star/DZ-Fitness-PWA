@@ -478,6 +478,60 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
 .macro-save:hover { filter: brightness(1.06); }
 .macro-form .macro-status { color: #e3ff9d; }
 .macro-status:empty { margin-top: -1em; }
+.weight-forecast { display: grid; gap: clamp(10px, 2dvh, 22px); }
+.weight-forecast h2 { margin: 0; font-size: clamp(23px, 4vw, 36px); letter-spacing: -.06em; }
+.forecast-horizons { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: clamp(7px, 1.4vw, 16px); }
+.forecast-primary, .forecast-secondary {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(11px, 2.5vw, 34px);
+  border: 1px solid var(--line);
+  border-radius: clamp(13px, 2vw, 22px);
+}
+.forecast-primary {
+  border-color: #53683a;
+  background:
+    radial-gradient(ellipse at 100% 0%, #69883455, transparent 70%),
+    repeating-linear-gradient(90deg, transparent 0 21px, #d6ff5309 21px 22px),
+    linear-gradient(140deg, #293723, #17211b 70%);
+  box-shadow: inset 0 1px #eaffb715, 0 8px 28px #0003;
+}
+.forecast-secondary { background: linear-gradient(145deg, #222e35, var(--paper) 75%); }
+.forecast-horizons h3 { margin: 0; font-size: clamp(12px, 2vw, 19px); }
+.forecast-primary h3 { color: #e3f5cd; }
+.forecast-secondary h3 { color: var(--mute); }
+.forecast-reading { margin: 6px 0 0; overflow-wrap: anywhere; }
+.forecast-reading strong { font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -.065em; line-height: 1.05; }
+.forecast-primary .forecast-reading { color: var(--lime); }
+.forecast-primary .forecast-reading strong { font-size: clamp(36px, 8vw, 78px); }
+.forecast-primary .nutrition-unit { color: #d7e8be; font-size: clamp(11px, 2vw, 16px); }
+.forecast-secondary .forecast-reading strong { font-size: clamp(23px, 4.8vw, 46px); }
+.forecast-caption { margin: 6px 0 0; color: #c0cfb7; font-size: clamp(10px, 1.6vw, 13px); line-height: 1.35; }
+.forecast-coverage {
+  display: grid;
+  gap: 7px;
+  padding: clamp(8px, 1.6vw, 16px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.forecast-coverage > div:first-child { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 10px; font-size: clamp(11px, 1.5vw, 13px); }
+.forecast-coverage strong { color: var(--ink); }
+.forecast-coverage span { color: var(--mute); }
+.forecast-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.forecast-days span { height: 5px; border-radius: 999px; background: #39454c; }
+.forecast-days .logged { background: var(--lime); }
+.forecast-inputs h3 { margin: 0 0 6px; font-size: clamp(13px, 2vw, 17px); }
+.forecast-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(5px, 1.3vw, 12px); margin: 0; }
+.forecast-metrics > div { min-width: 0; padding: clamp(7px, 1.6vw, 16px); border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.forecast-metrics dt { color: var(--mute); font-size: clamp(10px, 1.55vw, 13px); }
+.forecast-metrics dd { margin: 3px 0 0; overflow-wrap: anywhere; }
+.forecast-metrics dd strong { font-size: clamp(16px, 2.8vw, 27px); font-variant-numeric: tabular-nums; letter-spacing: -.045em; }
+.forecast-method { color: var(--mute); font-size: 12px; }
+.forecast-method summary { width: fit-content; padding: 5px 2px; cursor: pointer; }
+.forecast-method p { margin: 6px 0 0; }
 .line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .line-chart svg { display: block; width: 100%; max-height: 390px; }
 .line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -530,6 +584,7 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
   .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .nutrition-today { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .nutrition-today-heading, .calorie-card { grid-column: 1 / -1; }
+  .forecast-metrics { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .keypad-overlay { align-items: center; }
   .keypad-panel { border-radius: 22px; }
 }
@@ -554,6 +609,16 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
   .nutrition-metrics { margin-top: 4px; }
   .nutrition-metric { padding: 5px; }
   .nutrition-today dd { margin-top: 2px; }
+  .weight-forecast { gap: 7px; }
+  .weight-forecast h2 { font-size: clamp(20px, 3.5vw, 30px); }
+  .forecast-primary .forecast-reading strong { font-size: clamp(33px, 7dvh, 54px); }
+  .forecast-secondary .forecast-reading strong { font-size: clamp(23px, 5dvh, 38px); }
+  .forecast-primary, .forecast-secondary { padding-block: 8px; }
+  .forecast-coverage { gap: 5px; padding-block: 6px; }
+  .forecast-inputs h3 { margin-bottom: 4px; }
+  .forecast-metrics > div { padding-block: 5px; }
+  .forecast-metrics dd { margin-top: 2px; line-height: 1.2; }
+  .forecast-method summary { padding-block: 2px; }
 }
 @media (max-width: 719px) and (max-height: 650px) {
   .home .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }

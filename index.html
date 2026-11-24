@@ -1,4 +1,4 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c0f12"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=18"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c0f12"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=19"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
 const routines={push:['Landmine Press','Bench Press','Incline Smith Machine Press','Incline Dumbbell Press','Dips','Lateral Raise Combo (Lateral / Front / Overhead Press)','Tricep Extension','Tricep Pushdown'],pull:['Weighted Pull-up','Seated Cable Row','Barbell Row','Face Pull','Rear Delt Cable Fly','Cable Biceps Curl','Hammer Curl','Wrist Combo (Curl / Reverse Curl / Twist)'],leg:['Jump Squat','Deadlift','Leg Press','Lunge Combo','Leg Extension','Leg Curl','Calf Kick','Abs']};const I=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;const colors={push:'#ff9ea8',pull:'#8edcff',leg:'#a6ed9d'},icons={push:I('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),pull:I('<path d="M3 4h18M8 4v5M16 4v5"/><circle cx="12" cy="12" r="2.6"/><path d="M9 21v-3.5a3 3 0 0 1 6 0V21"/>'),leg:I('<path d="M4 20h5v-5h5v-5h6"/><path d="M15 5h5v5M20 5l-6 6"/>')},IC={cal:I('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),home:I('<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>'),stats:I('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'),set:I('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),next:I('<path d="M9 6l6 6-6 6"/>')};let view='home',routine='push',date=todayStr();let data={};try{data=JSON.parse(localStorage.getItem('dzGymLogV2')||'{}')}catch{}const app=document.getElementById('app');const fmt=d=>d.split('-').reverse().join('/');const key=(r,d,i)=>`${r}_${d}_${i}`;const stored=(r,d,i)=>data[key(r,d,i)]||{};function persist(){localStorage.setItem('dzGymLogV2',JSON.stringify(data))}function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const has=v=>v&&(v.set||v.rep||v.kg);
 function sessions(r){const s=new Set();for(const k of Object.keys(data)){const m=k.match(/^([a-z]+)_(\d{4}-\d\d-\d\d)_\d+$/);if(m&&m[1]===r&&has(data[k]))s.add(m[2])}return[...s].sort()}
@@ -602,7 +602,57 @@ function saveMeals(updated) {
   localStorage.setItem('dzcalolog', JSON.stringify(updated));
   meals = updated;
 }
-function energyForecast(){let end=todayStr(),start=new Date(end+'T12:00:00');start.setDate(start.getDate()-6);let keys=Object.keys(meals).filter(k=>k<=end&&Date.parse(k)>=Date.parse(end)-6*86400000),avg=keys.length?keys.reduce((s,k)=>s+meals[k][0],0)/keys.length:0,gavg=Object.entries(gym).filter(([k])=>{let d=k.slice(-10);return d<=end&&Date.parse(d)>=Date.parse(end)-6*86400000}).reduce((s,[k,x])=>s+burn(x),0)/7,t=baseE()+gavg,delta=(avg-t)/7700;return `<section class="energy"><h2>Dự báo cân nặng</h2><div class="energygrid">${et('Gym TB / ngày',enFmt(gavg))}${et('TDEE TB / ngày',enFmt(t))}${et('Calo cần ăn TB',enFmt(t+extraE()))}${et('Calo ăn TB',keys.length?enFmt(avg):'—')}${[7,30].map(n=>et('Sau '+n+' ngày',keys.length?(delta>=0?'+':'')+enFmt(delta*n,2)+' kg':'—')).join('')}</div><p class="hint">${keys.length}/7 ngày ăn đã ghi. Gym lấy tổng 7 ngày chia 7; ngày chưa ghi gym được giả định nghỉ. Dự báo giả định tiếp tục mức ăn và vận động này, dùng 7.700 kcal/kg; không phải dự báo tăng cơ.</p></section>`}
+function energyForecast() {
+  const end = todayStr();
+  const calendar = Array.from({ length: 7 }, (_, i) => offsetTrainingDay(end, i - 6));
+  const logged = calendar.filter(day => Object.hasOwn(meals, day));
+  const eatenAverage = logged.length ? logged.reduce((total, day) => total + meals[day][0], 0) / logged.length : NaN;
+  const gymAverage = calendar.reduce((total, day) => total + dayBurn(day), 0) / calendar.length;
+  const tdee = baseE() + gymAverage;
+  const dailyChange = (eatenAverage - tdee) / 7700;
+  const projectedChange = days => {
+    const change = dailyChange * days;
+    return Number.isFinite(change)
+      ? `<strong>${change >= 0 ? '+' : ''}${enFmt(change, 2)}</strong> <span class="nutrition-unit">kg</span>`
+      : '<strong>—</strong>';
+  };
+  const metrics = [
+    ['Gym TB', gymAverage],
+    ['TDEE TB', tdee],
+    ['Calo cần ăn TB', tdee + extraE()],
+    ['Calo ăn TB', eatenAverage]
+  ];
+
+  return `<section class="weight-forecast" aria-labelledby="forecast-title">
+    <h2 id="forecast-title">Dự báo cân nặng</h2>
+    <div class="forecast-horizons">
+      <div class="forecast-primary">
+        <h3>Sau 7 ngày</h3>
+        <p class="forecast-reading">${projectedChange(7)}</p>
+        <p class="forecast-caption">${logged.length ? 'Thay đổi cân nặng ước tính' : 'Chưa ghi lượng calo đã ăn'}</p>
+      </div>
+      <div class="forecast-secondary">
+        <h3>Sau 30 ngày</h3>
+        <p class="forecast-reading">${projectedChange(30)}</p>
+      </div>
+    </div>
+    <div class="forecast-coverage">
+      <div><strong>${logged.length}/7 ngày ăn đã ghi</strong><span>${fmt(calendar[0]).slice(0, 5)} – ${fmt(end).slice(0, 5)}</span></div>
+      <div class="forecast-days" aria-hidden="true">${calendar.map(day =>
+        `<span class="${Object.hasOwn(meals, day) ? 'logged' : ''}"></span>`
+      ).join('')}</div>
+    </div>
+    <section class="forecast-inputs" aria-labelledby="forecast-inputs-title">
+      <h3 id="forecast-inputs-title">Trung bình mỗi ngày</h3>
+      <dl class="forecast-metrics">${metrics.map(([label, value]) => `
+        <div><dt>${label}</dt><dd>${nutritionReading(value, 'kcal')}</dd></div>`).join('')}</dl>
+    </section>
+    <details class="forecast-method">
+      <summary>Cách tính dự báo</summary>
+      <p class="hint">Calo ăn bình quân tính theo ngày có ghi bữa ăn. Calo gym bình quân tính trên cả 7 ngày, kể cả ngày nghỉ. Dự báo ước tính thay đổi cân nặng nếu duy trì mức ăn và vận động hiện tại, với quy đổi 7.700 kcal/kg.</p>
+    </details>
+  </section>`;
+}
 addEventListener('storage', event => {
   if (event.key === 'dzcalolog' || event.key === null) meals = loadE('dzcalolog', {});
   if (event.key === 'dzGymLogV2' || event.key === null) data = loadE('dzGymLogV2', {});
