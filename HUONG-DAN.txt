@@ -1,0 +1,2 @@
+DZ Fitness Intelligence — PWA
+Đưa các file lên cùng thư mục GitHub Pages (HTTPS). Mở URL trên Chrome Android hoặc Safari iPhone, chọn thêm vào màn hình chính. Mở online lần đầu để tải cache. Dữ liệu LocalStorage chỉ giữ nếu dùng cùng origin và trình duyệt; sao lưu trước khi cập nhật. Font Google có thể dùng font dự phòng khi offline. Đây không phải APK.

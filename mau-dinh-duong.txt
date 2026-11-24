@@ -1,0 +1,2 @@
+# Ngày;Calo;Protein;Carb;Fat
+2026-11-24;2260;92;276;87
