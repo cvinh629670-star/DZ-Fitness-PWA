@@ -22,7 +22,7 @@ const cap=r=>r[0].toUpperCase()+r.slice(1);function edit(r,i,field,val){if(!allo
   }).join("");
   app.innerHTML = `<div class="home">${header()}
     <section class="hero" aria-labelledby="today-title">
-      <img src="training-hero.jpg" alt="" fetchpriority="high">
+      <img src="training-hero.jpg?v=7954d46" alt="" fetchpriority="high">
       <div><h2 id="today-title">Tập luyện<br>hôm nay</h2><p>${active ? `${cap(active)} · ${prog(active)}/${routines[active].length} bài đã ghi` : 'Chọn một lịch tập cho hôm nay'}</p>
       ${active ? `<em class="bar hero-meter" aria-hidden="true"><u style="width:${prog(active) / routines[active].length * 100}%"></u></em>` : ''}</div>
     </section>
