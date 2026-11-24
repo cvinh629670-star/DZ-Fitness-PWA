@@ -319,6 +319,33 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
 .srow b { font-size: 22px; }
 .settings > .energy, .analytics { margin-top: 18px; }
 .energy h2 { color: var(--lime); }
+.gym-energy { display: grid; gap: 14px; }
+.gym-energy-heading { display: flex; align-items: center; gap: 11px; }
+.gym-energy-heading > span { display: grid; place-items: center; width: 43px; height: 43px; border: 1px solid color-mix(in srgb, var(--ac) 25%, var(--line)); border-radius: 12px; background: color-mix(in srgb, var(--ac) 11%, var(--paper)); color: var(--ac); font-size: 23px; }
+.gym-energy-heading h2 { margin: 0 0 2px; color: var(--ink); font-size: clamp(20px, 3vw, 29px); }
+.gym-energy-heading time { color: var(--mute); font-size: 11px; }
+.gym-energy-layout { display: grid; gap: 12px; }
+.gym-energy-metrics { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; }
+.gym-energy-metrics > div { display: grid; align-content: start; gap: 5px; min-width: 0; padding: clamp(9px, 1.8vw, 18px); border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+.gym-energy-metrics .gym-energy-primary { border-color: color-mix(in srgb, var(--ac) 28%, var(--line)); background: radial-gradient(ellipse at 100% 0%, color-mix(in srgb, var(--ac) 17%, transparent), transparent 75%), var(--paper); }
+.gym-energy-metrics :is(dt, small) { color: var(--mute); font-size: 11px; }
+.gym-energy-metrics dd { margin: 0; overflow-wrap: anywhere; }
+.gym-energy-metrics strong { font-size: clamp(23px, 4vw, 38px); letter-spacing: -.05em; font-variant-numeric: tabular-nums; }
+.gym-energy-primary strong { color: var(--ac); }
+.gym-energy-form { display: grid; gap: 8px; }
+.gym-energy-form label, .gym-energy-form button { margin: 0; }
+.gym-energy-form :is(input, select) { font-size: 16px; }
+.gym-duration { position: relative; }
+.gym-energy-form .gym-duration input { padding-right: 57px; }
+.gym-duration > span { position: absolute; top: 50%; right: 13px; transform: translateY(-50%); pointer-events: none; }
+.gym-energy-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.gym-energy-footer .hint { flex: 1 1 240px; margin: 0; }
+.gym-energy-footer button { width: auto; margin: 0; color: #ffc1d1; }
+@media (min-width: 840px) {
+  .gym-energy-layout { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+  .gym-energy-form { grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr); }
+  .gym-energy-form button { grid-column: 1 / -1; }
+}
 .energygrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .etile { padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); overflow-wrap: anywhere; }
 .etile small, .energy label, .chart-filter { color: var(--mute); font-size: 12px; }
