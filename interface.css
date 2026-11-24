@@ -167,7 +167,7 @@ button, .filebtn { cursor: pointer; }
   .workcard { grid-template-columns: minmax(0, 1fr) auto; align-content: space-between; min-height: 173px; }
   .workcard .emoji { grid-column: 1 / -1; }
   .paper { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-  .chart-filters { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 12px; }
+  .chart-filters { display: grid; grid-template-columns: 1fr 1.4fr; gap: 12px; }
   .paper > :is(.sugall, .save, .mini, .energy) { grid-column: 1 / -1; }
   .settings > :is(button, .filebtn) { max-width: 540px; }
   .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }

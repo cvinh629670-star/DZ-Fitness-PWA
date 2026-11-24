@@ -56,7 +56,7 @@ function allowTrainingEdit(r) {
   return false;
 }
 function work(){const ls=sessions(routine).filter(d=>d<date).pop();const sgs=routines[routine].map((_,i)=>suggest(prev(routine,i)));app.innerHTML=`<div class="top ${routine}"><div class="topline"><button class="back" aria-label="Về trang chủ" onclick="nav('home')">‹</button><span class="ticon">${icons[routine]}</span><div><h2>${cap(routine)}</h2><p>Hôm nay ${fmt(date)}${ls?' · lần trước '+fmt(ls).slice(0,5):' · buổi đầu tiên'}</p></div></div><div class="tprog"><span>${prog(routine)}/8 bài đã ghi</span><em class="bar"><u style="width:${prog(routine)*12.5}%"></u></em></div></div><div class="paper" style="--ac:${colors[routine]}">${sgs.some(Boolean)?`<button class="sugall" onclick="document.querySelectorAll('.sug').forEach(b=>b.click())">Dùng tất cả gợi ý cho hôm nay</button>`:''}${routines[routine].map((name,i)=>{const d=stored(routine,date,i),p=prev(routine,i),sg=sgs[i];return `<div class="exercise${has(d)?' done':''}" data-i="${i}"><div class="exhead"><span class="n">${i+1}</span><label>${name}</label></div><div class="exbody"><div class="prevcol">${p?`<small>Lần trước · ${fmt(p.d).slice(0,5)}</small><b>${esc(p.set||'–')}×${esc(p.rep||'–')}</b><em>${p.kg?esc(p.kg)+' kg':'tạ thân'}</em>`:`<small>Lần trước</small><em>Chưa có</em>`}</div><input aria-label="Số set ${name}" readonly inputmode="none" placeholder="Set" value="${esc(d.set||'')}" oninput="edit('${routine}',${i},'set',this.value)"><input aria-label="Số rep ${name}" readonly inputmode="none" placeholder="Rep" value="${esc(d.rep||'')}" oninput="edit('${routine}',${i},'rep',this.value)"><input aria-label="Số kg ${name}" readonly inputmode="none" placeholder="Kg" value="${esc(d.kg||'')}" oninput="edit('${routine}',${i},'kg',this.value)"></div>${sg?`<button class="sug" type="button"><b>Gợi ý hôm nay: ${esc(sg.set||'–')}×${esc(sg.rep||'–')} · ${sg.kg?esc(sg.kg)+' kg':'tạ thân'}</b><span>Dùng</span></button>`:''}</div>`}).join('')}${gymPanel()}<button class="save ${routine}" onclick="if(!allowTrainingEdit(routine))return;persist();this.textContent='✓ Đã lưu';setTimeout(()=>this.textContent='✓ Lưu bài tập',1200)">✓ Lưu bài tập</button><p class="mini">Dữ liệu tự lưu khi nhập. Lần sau tập ${cap(routine)}, số liệu hôm nay sẽ hiện ở cột "Lần trước". Gợi ý: đạt 12 rep thì tăng tạ (2.5 kg, hoặc 1 kg nếu dưới 20 kg) và về 8 rep; chưa đạt thì giữ tạ và thêm 1 rep. Bạn vẫn sửa tự do. Rep nhập dạng 8, 8/10/10 hoặc Max.</p></div>${footer('')}`};
-function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}function count(){return Object.keys(data).filter(k=>Object.values(data[k]||{}).some(v=>String(v).trim())).length}function dayTypes(d){return Object.keys(routines).filter(r=>routines[r].some((_,i)=>{let v=stored(r,d,i);return v.set||v.rep||v.kg}))}function stats(){const per=Object.keys(routines).map(r=>({r,n:sessions(r).length,last:sessions(r).pop()}));const mx=Math.max(1,...per.map(p=>p.n));app.innerHTML=`<div class="dark header"><h1>Thống kê</h1><p class="sub">Số buổi đã tập theo từng lịch</p></div><div class="settings"><h2>${new Set(per.flatMap(p=>sessions(p.r))).size} ngày đã ghi</h2>${per.map(({r,n,last})=>`<div class="srow"><i class="${r}">${icons[r]}</i><div><strong>${cap(r)} <small class="hint">· gần nhất ${last?fmt(last).slice(0,5):'chưa có'}</small></strong><em class="bar"><u style="width:${n*100/mx}%;background:${colors[r]}"></u></em></div><b>${n}</b></div>`).join('')}<p class="hint">Mỗi buổi là một ngày có ghi ít nhất một bài của lịch đó.</p>${energyForecast()}${analytics()}</div>${footer('stats')}`};function settings(){app.innerHTML=`<div class="dark header"><h1>Cài đặt</h1><p class="sub">Quản lý dữ liệu tập luyện</p></div><div class="settings">${profilePanel()}${installed()?'':`<button class="install" onclick="installApp()">Cài app lên màn hình chính</button>`}<button onclick="exportJSON()">Sao lưu dữ liệu (JSON)</button><label class="filebtn">Khôi phục từ file sao lưu<input type="file" accept=".json,application/json" hidden onchange="importJSON(this.files[0])"></label><button onclick="exportCSV()">Xuất dữ liệu CSV</button><button class="danger" onclick="if(confirm('Xóa toàn bộ dữ liệu đã ghi?')){data={};persist();render()}">Xóa toàn bộ ghi chú</button><p class="hint">Dữ liệu lưu trên trình duyệt hiện tại. Nếu xóa dữ liệu trình duyệt, ghi chú có thể mất. Hãy xuất CSV để sao lưu.</p></div>${footer('settings')}`};function exportCSV(){const rows=[['Lịch','Ngày','Bài tập','Set','Rep','Kg']];for(const r of Object.keys(routines))for(const day of sessions(r))routines[r].forEach((name,i)=>{const v=stored(r,day,i);if(has(v))rows.push([r,day,name,v.set||'',v.rep||'',v.kg||''])});const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='DZ-Gym-Log.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}const analyticsFilters = { volume: 'all', exercise: 'push:0', metric: 'weight' };
+function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}function count(){return Object.keys(data).filter(k=>Object.values(data[k]||{}).some(v=>String(v).trim())).length}function dayTypes(d){return Object.keys(routines).filter(r=>routines[r].some((_,i)=>{let v=stored(r,d,i);return v.set||v.rep||v.kg}))}function stats(){const per=Object.keys(routines).map(r=>({r,n:sessions(r).length,last:sessions(r).pop()}));const mx=Math.max(1,...per.map(p=>p.n));app.innerHTML=`<div class="dark header"><h1>Thống kê</h1><p class="sub">Số buổi đã tập theo từng lịch</p></div><div class="settings"><h2>${new Set(per.flatMap(p=>sessions(p.r))).size} ngày đã ghi</h2>${per.map(({r,n,last})=>`<div class="srow"><i class="${r}">${icons[r]}</i><div><strong>${cap(r)} <small class="hint">· gần nhất ${last?fmt(last).slice(0,5):'chưa có'}</small></strong><em class="bar"><u style="width:${n*100/mx}%;background:${colors[r]}"></u></em></div><b>${n}</b></div>`).join('')}<p class="hint">Mỗi buổi là một ngày có ghi ít nhất một bài của lịch đó.</p>${energyForecast()}${analytics()}</div>${footer('stats')}`};function settings(){app.innerHTML=`<div class="dark header"><h1>Cài đặt</h1><p class="sub">Quản lý dữ liệu tập luyện</p></div><div class="settings">${profilePanel()}${installed()?'':`<button class="install" onclick="installApp()">Cài app lên màn hình chính</button>`}<button onclick="exportJSON()">Sao lưu dữ liệu (JSON)</button><label class="filebtn">Khôi phục từ file sao lưu<input type="file" accept=".json,application/json" hidden onchange="importJSON(this.files[0])"></label><button onclick="exportCSV()">Xuất dữ liệu CSV</button><button class="danger" onclick="if(confirm('Xóa toàn bộ dữ liệu đã ghi?')){data={};persist();render()}">Xóa toàn bộ ghi chú</button><p class="hint">Dữ liệu lưu trên trình duyệt hiện tại. Nếu xóa dữ liệu trình duyệt, ghi chú có thể mất. Hãy xuất CSV để sao lưu.</p></div>${footer('settings')}`};function exportCSV(){const rows=[['Lịch','Ngày','Bài tập','Set','Rep','Kg']];for(const r of Object.keys(routines))for(const day of sessions(r))routines[r].forEach((name,i)=>{const v=stored(r,day,i);if(has(v))rows.push([r,day,name,v.set||'',v.rep||'',v.kg||''])});const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='DZ-Gym-Log.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}const analyticsFilters = { volume: 'all', exercise: 'push:0' };
 const chartNumber = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 2 });
 
 function recordedNumber(value) {
@@ -70,6 +70,7 @@ function exerciseMetrics(entry) {
   const repText = String(entry.rep ?? '').trim();
   const reps = repText.split('/').map(recordedNumber);
   const validReps = reps.every(value => Number.isInteger(value) && value > 0);
+  const maxReps = validReps ? Math.max(...reps) : NaN;
   const validSets = Number.isInteger(sets) && sets > 0;
   let total = NaN;
   if (validReps && reps.length > 1 && (!String(entry.set ?? '').trim() || sets === reps.length)) {
@@ -79,8 +80,9 @@ function exerciseMetrics(entry) {
   }
   return {
     weight,
-    reps: validReps ? Math.min(...reps) : NaN,
-    volume: weight > 0 ? weight * total : NaN
+    reps: maxReps,
+    volume: weight > 0 ? weight * total : NaN,
+    progress: weight > 0 ? weight * maxReps : NaN
   };
 }
 
@@ -124,17 +126,14 @@ function combinedChart(volume, progress, start, unit) {
 }
 
 function analytics() {
-  const end = todayStr();
-  const startDate = new Date(end + 'T12:00:00');
-  startDate.setDate(startDate.getDate() - 29);
-  const start = startDate.getFullYear() + '-' + String(startDate.getMonth() + 1).padStart(2, '0') + '-' + String(startDate.getDate()).padStart(2, '0');
+  const start = '2026-11-13';
+  const end = offsetTrainingDay(start, 29);
   const inPeriod = day => day >= start && day <= end;
   const periodLabel = fmt(start) + ' – ' + fmt(end);
   const group = analyticsFilters.volume;
   const [track, indexText] = analyticsFilters.exercise.split(':');
   const index = Number(indexText);
-  const metric = analyticsFilters.metric;
-  const unit = metric === 'weight' ? 'kg' : 'rep';
+  const unit = 'kg × rep';
   const groups = group === 'all' ? Object.keys(routines) : [group];
   const totals = new Map();
   for (const r of groups) {
@@ -147,7 +146,7 @@ function analytics() {
   }
   const volumePoints = [...totals.keys()].sort().map(day => ({ day, value: totals.get(day) }));
   const history = sessions(track).filter(inPeriod).map(day => ({ day, entry: stored(track, day, index) })).filter(({ entry }) => has(entry));
-  const points = history.map(({ day, entry }) => ({ day, value: exerciseMetrics(entry)[metric] }))
+  const points = history.map(({ day, entry }) => ({ day, value: exerciseMetrics(entry).progress }))
     .filter(point => Number.isFinite(point.value));
 
   const current = points.at(-1);
@@ -163,10 +162,9 @@ function analytics() {
       <div class="chart-filters">
       <label class="chart-filter">Lịch tập <select data-chart="volume">${option('all', 'Tất cả', group)}${Object.keys(routines).map(r => option(r, cap(r), group)).join('')}</select></label>
       <label class="chart-filter">Bài tập <select data-chart="exercise">${Object.entries(routines).map(([r, names]) => '<optgroup label="' + cap(r) + '">' + names.map((name, i) => option(r + ':' + i, name, analyticsFilters.exercise)).join('') + '</optgroup>').join('')}</select></label>
-      <label class="chart-filter">Chỉ số <select data-chart="metric">${option('weight', 'Mức tạ (kg)', metric)}${option('reps', 'Rep thấp nhất mỗi set', metric)}</select></label>
       </div>
       ${combinedChart(volumePoints, points, start, unit)}
-      <p class="hint">Volume = kg × tổng rep. Dạng 8/10/10 cộng từng set. Chỉ tính bài có tạ và tổng rep xác định được.</p>
+      <p class="hint">Volume = kg × rep × set khi các set cùng số rep. Với 8/10/10, volume = kg × (8 + 10 + 10). Tăng tiến = kg × số rep cao nhất trong một set.</p>
       ${volumePoints.length ? '<p class="hint">Tổng volume: <strong>' + chartNumber.format(volumePoints.reduce((sum, point) => sum + point.value, 0)) + '</strong> kg × rep</p>' : ''}
       ${current ? '<p class="progress-summary">Gần nhất <strong>' + chartNumber.format(current.value) + ' ' + unit + '</strong> · ' + fmt(current.day) + (first ? '<br>So với buổi đầu kỳ ' + fmt(first.day) + ': <strong>' + (delta > 0 ? '+' : '') + chartNumber.format(delta) + ' ' + unit + '</strong>' : '') + '</p>' : ''}
       ${target ? '<p class="progress-target"><strong>Gợi ý buổi sau</strong><br>' + (target.set ? esc(target.set) + ' set · ' : '') + esc(target.rep) + ' rep · ' + (target.kg ? esc(target.kg) + ' kg' : 'tạ thân') + '</p>' : ''}
@@ -191,8 +189,9 @@ function openKeypad(el){
  closeKeypad();keypadInput=el;
  const row=el.closest('.exercise');const name=row?.querySelector('label')?.textContent||'Bài tập';
  const field=el.getAttribute('aria-label')||'';
+ const repField=el.placeholder==='Rep';
  const modal=document.createElement('div');modal.id='gymKeypad';modal.className='keypad-overlay';
- modal.innerHTML=`<div class="keypad-panel" role="dialog" aria-modal="true" aria-label="Bàn phím nhập số"><div class="keypad-top"><div><div class="keypad-title">${esc(name)}</div><div class="keypad-sub">${esc(field.startsWith('Số set')?'Số set':field.startsWith('Số rep')?'Số rep':'Mức tạ (kg)')}</div></div><button class="keypad-close" type="button" data-key="done" aria-label="Đóng">×</button></div><div class="keypad-display" id="keypadValue"></div><div class="keypad-grid">${['1','2','3','4','5','6','7','8','9','.','0','⌫'].map(x=>`<button type="button" data-key="${x==='⌫'?'back':x}" class="${x==='⌫'?'key-del':''}">${x}</button>`).join('')}</div><div class="keypad-actions"><button type="button" data-key="clear">Xóa hết</button><button type="button" class="key-done" data-key="done">✓ Xong</button></div></div>`;
+ modal.innerHTML=`<div class="keypad-panel" role="dialog" aria-modal="true" aria-label="Bàn phím nhập số"><div class="keypad-top"><div><div class="keypad-title">${esc(name)}</div><div class="keypad-sub">${esc(field.startsWith('Số set')?'Số set':field.startsWith('Số rep')?'Số rep':'Mức tạ (kg)')}</div></div><button class="keypad-close" type="button" data-key="done" aria-label="Đóng">×</button></div><div class="keypad-display" id="keypadValue"></div><div class="keypad-grid">${['1','2','3','4','5','6','7','8','9',repField?'/' : '.','0','⌫'].map(x=>`<button type="button" data-key="${x==='⌫'?'back':x}" class="${x==='⌫'?'key-del':''}">${x}</button>`).join('')}</div><div class="keypad-actions"><button type="button" data-key="clear">Xóa hết</button><button type="button" class="key-done" data-key="done">✓ Xong</button></div></div>`;
  modal.addEventListener('click',e=>{if(e.target===modal)closeKeypad()});
  modal.querySelectorAll('[data-key]').forEach(btn=>btn.addEventListener('click',()=>keypadPress(btn.dataset.key)));
  document.body.append(modal);updateKeypadDisplay();
@@ -200,11 +199,11 @@ function openKeypad(el){
 function updateKeypadDisplay(){const display=document.getElementById('keypadValue');if(display)display.textContent=keypadInput?.value||'—'}
 function keypadPress(k){if(!keypadInput)return;navigator.vibrate?.(8);if(k==='done'){closeKeypad();return}
  let v=keypadInput.value;
- if(k==='clear')v='';else if(k==='back')v=v.slice(0,-1);else if(k==='.') {if(!v.includes('.'))v=(v||'0')+'.'}else if(/^\d$/.test(k)&&v.length<9)v+=k;
+ if(k==='clear')v='';else if(k==='back')v=v.slice(0,-1);else if(k==='/'&&keypadInput.placeholder==='Rep'){if(/\d$/.test(v)&&v.length<32)v+='/'}else if(k==='.'&&keypadInput.placeholder!=='Rep') {if(!v.includes('.'))v=(v||'0')+'.'}else if(/^\d$/.test(k)&&v.length<(keypadInput.placeholder==='Rep'?32:9))v+=k;
  keypadInput.value=v;keypadInput.dispatchEvent(new Event('input',{bubbles:true}));updateKeypadDisplay();
 }
 document.addEventListener('click',e=>{const el=e.target.closest?.('.exercise input[readonly]');if(el)openKeypad(el)});
-document.addEventListener('keydown',e=>{if(!keypadInput)return;if(e.key==='Escape'){closeKeypad();return}if(e.key==='Backspace'){keypadPress('back');return}if(e.key==='Enter'){closeKeypad();return}if(/^[0-9.]$/.test(e.key))keypadPress(e.key)});
+document.addEventListener('keydown',e=>{if(!keypadInput)return;if(e.key==='Escape'){closeKeypad();return}if(e.key==='Backspace'){keypadPress('back');return}if(e.key==='Enter'){closeKeypad();return}if(/^[0-9./]$/.test(e.key)){e.preventDefault();keypadPress(e.key)}});
 document.addEventListener('input',e=>{const row=e.target.closest?.('.exercise');if(!row)return;row.classList.toggle('done',[...row.querySelectorAll('input')].some(x=>x.value.trim()));const n=document.querySelectorAll('.exercise.done').length,t=document.querySelector('.tprog');if(t){t.querySelector('span').textContent=n+'/8 bài đã ghi';t.querySelector('u').style.width=n*12.5+'%'}});
 document.addEventListener('click',e=>{const b=e.target.closest?.('.sug');if(!b||!allowTrainingEdit(routine))return;const row=b.closest('.exercise'),s=suggest(prev(routine,+row.dataset.i));if(!s)return;const ins=row.querySelectorAll('input');[s.set,s.rep,s.kg].forEach((v,k)=>{if(v!==''&&v!=null){ins[k].value=v;ins[k].dispatchEvent(new Event('input',{bubbles:true}))}})});
 let dip=null;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dip=e});
