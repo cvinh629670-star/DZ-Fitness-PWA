@@ -127,16 +127,23 @@ button, .filebtn { cursor: pointer; }
 .energy td, .energy th { padding: 6px 2px; text-align: left; border-bottom: 1px solid var(--line); }
 .energy td button { width: auto; padding: 6px 9px; margin: 0; }
 .line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
-.line-chart svg { display: block; width: 100%; }
+.line-chart svg { display: block; width: 100%; max-height: 390px; }
 .line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
 .chart-grid line { stroke: var(--line); }
-.line-chart polyline { fill: none; stroke: var(--chart-accent, var(--lime)); stroke-width: 2; stroke-linejoin: round; }
-.line-chart circle { fill: var(--chart-accent, var(--lime)); stroke: var(--paper); stroke-width: 1; }
+.chart-volume { --series: var(--lime); }
+.chart-progress { --series: #8edcff; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 6px 18px; padding: 10px 12px 0; font-size: 12px; }
+.chart-legend span { color: var(--series); font-weight: 700; }
+.chart-legend span::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; background: currentColor; }
+.line-chart g text { fill: var(--series, var(--mute)); }
+.line-chart polyline { fill: none; stroke: var(--series); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.chart-progress polyline { stroke-dasharray: 5 3; }
+.line-chart circle { fill: var(--series); stroke: var(--paper); stroke-width: 1; }
 .line-chart details { margin-inline: 12px; color: var(--mute); font-size: 12px; }
 .line-chart summary { cursor: pointer; }
 .line-chart table { width: 100%; margin-top: 6px; border-collapse: collapse; text-align: left; }
 .line-chart :is(th, td) { padding: 6px 0; border-bottom: 1px solid var(--line); }
-.line-chart :is(th, td):last-child { text-align: right; }
+.line-chart :is(th, td):not(:first-child) { text-align: right; }
 .progress-summary, .progress-target { font-size: 13px; line-height: 1.6; }
 .progress-target { padding: 12px; border-left: 2px solid var(--lime); border-radius: 8px; background: var(--paper); }
 .keypad-overlay { position: fixed; inset: 0; z-index: 30; display: flex; align-items: end; justify-content: center; background: #06090bb8; backdrop-filter: blur(5px); }
@@ -159,7 +166,8 @@ button, .filebtn { cursor: pointer; }
   .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .workcard { grid-template-columns: minmax(0, 1fr) auto; align-content: space-between; min-height: 173px; }
   .workcard .emoji { grid-column: 1 / -1; }
-  .paper, .analytics { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .paper { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+  .chart-filters { display: grid; grid-template-columns: 1fr 1.4fr 1fr; gap: 12px; }
   .paper > :is(.sugall, .save, .mini, .energy) { grid-column: 1 / -1; }
   .settings > :is(button, .filebtn) { max-width: 540px; }
   .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
