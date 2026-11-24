@@ -246,7 +246,7 @@ button, .filebtn { cursor: pointer; }
 }
 .nutrition-unit { color: var(--mute); font-size: clamp(10px, 1.4vw, 13px); font-weight: 600; }
 .calorie-goal .nutrition-unit { color: #d7e8be; font-size: clamp(11px, 2vw, 16px); }
-.nutrition-import-link {
+.nutrition-macro-link {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -261,8 +261,8 @@ button, .filebtn { cursor: pointer; }
   font-weight: 700;
   text-align: left;
 }
-.nutrition-import-link:hover, .nutrition-import-link:focus-visible { text-decoration: underline; }
-.nutrition-import-link .i { font-size: 15px; }
+.nutrition-macro-link:hover, .nutrition-macro-link:focus-visible { text-decoration: underline; }
+.nutrition-macro-link .i { font-size: 15px; }
 .calorie-dial {
   position: relative;
   display: grid;
@@ -318,6 +318,73 @@ button, .filebtn { cursor: pointer; }
 }
 .nutrition-macros .nutrition-metric:nth-child(2) { --macro-color: #8edcff; }
 .nutrition-macros .nutrition-metric:nth-child(3) { --macro-color: #ffd091; }
+.macro-entry { display: grid; gap: clamp(12px, 2dvh, 24px); }
+.macro-form {
+  display: grid;
+  gap: clamp(10px, 2dvh, 20px);
+  margin: 0;
+  padding: clamp(12px, 2.8vw, 28px);
+  border: 1px solid #414d34;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 95% 0%, #334125, transparent 65%), #121a18;
+}
+.macro-form > p { margin: 0; color: var(--mute); font-size: clamp(12px, 1.5vw, 14px); }
+.macro-field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(7px, 1.6vw, 16px); }
+.macro-field {
+  --macro-accent: var(--lime);
+  display: grid;
+  gap: clamp(4px, 1dvh, 9px);
+  min-width: 0;
+  padding: clamp(10px, 2vw, 22px);
+  border: 1px solid var(--control-border);
+  border-radius: 14px;
+  background: linear-gradient(155deg, color-mix(in srgb, var(--macro-accent) 8%, var(--paper)), var(--paper) 80%);
+  box-shadow: var(--control-edge);
+  cursor: text;
+  transition: border-color .16s, box-shadow .16s;
+}
+.macro-field:nth-child(2) { --macro-accent: #ff9ea8; }
+.macro-field:nth-child(3) { --macro-accent: #8edcff; }
+.macro-field:nth-child(4) { --macro-accent: #ffd091; }
+.macro-field:focus-within {
+  border-color: var(--macro-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--macro-accent) 18%, transparent);
+}
+.macro-field-label { color: var(--macro-accent); font-size: clamp(12px, 1.5vw, 15px); font-weight: 700; }
+.macro-value { display: flex; align-items: baseline; gap: 4px; }
+.macro-value input {
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  color: var(--ink);
+  background: transparent;
+  font-size: clamp(22px, 4.7vw, 38px);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.04em;
+  appearance: textfield;
+}
+.macro-value input:focus { outline: none; }
+.macro-value input::placeholder { color: #8998a2; }
+.macro-value input::-webkit-inner-spin-button, .macro-value input::-webkit-outer-spin-button { appearance: none; margin: 0; }
+.macro-unit { color: var(--mute); font-size: 11px; font-weight: 600; }
+.macro-save {
+  min-height: 46px;
+  padding: 10px 16px;
+  border: 1px solid var(--lime);
+  border-radius: 13px;
+  background: linear-gradient(155deg, #e8ffa0, var(--lime) 75%);
+  box-shadow: inset 0 1px #ffffff87, 0 4px 15px #d6ff5328;
+  color: #121807;
+  font-size: 14px;
+  font-weight: 800;
+  transition: filter .15s, transform .15s;
+}
+.macro-save:hover { filter: brightness(1.06); }
+.macro-form .macro-status { color: #e3ff9d; }
+.macro-status:empty { margin-top: -1em; }
 .line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .line-chart svg { display: block; width: 100%; max-height: 390px; }
 .line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }

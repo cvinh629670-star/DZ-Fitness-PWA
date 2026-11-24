@@ -1,4 +1,4 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c0f12"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=16"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c0f12"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=17"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
 const routines={push:['Landmine Press','Bench Press','Incline Smith Machine Press','Incline Dumbbell Press','Dips','Lateral Raise Combo (Lateral / Front / Overhead Press)','Tricep Extension','Tricep Pushdown'],pull:['Weighted Pull-up','Seated Cable Row','Barbell Row','Face Pull','Rear Delt Cable Fly','Cable Biceps Curl','Hammer Curl','Wrist Combo (Curl / Reverse Curl / Twist)'],leg:['Jump Squat','Deadlift','Leg Press','Lunge Combo','Leg Extension','Leg Curl','Calf Kick','Abs']};const I=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;const colors={push:'#ff9ea8',pull:'#8edcff',leg:'#a6ed9d'},icons={push:I('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),pull:I('<path d="M3 4h18M8 4v5M16 4v5"/><circle cx="12" cy="12" r="2.6"/><path d="M9 21v-3.5a3 3 0 0 1 6 0V21"/>'),leg:I('<path d="M4 20h5v-5h5v-5h6"/><path d="M15 5h5v5M20 5l-6 6"/>')},IC={cal:I('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),home:I('<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>'),stats:I('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'),set:I('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),next:I('<path d="M9 6l6 6-6 6"/>')};let view='home',routine='push',date=todayStr();let data={};try{data=JSON.parse(localStorage.getItem('dzGymLogV2')||'{}')}catch{}const app=document.getElementById('app');const fmt=d=>d.split('-').reverse().join('/');const key=(r,d,i)=>`${r}_${d}_${i}`;const stored=(r,d,i)=>data[key(r,d,i)]||{};function persist(){localStorage.setItem('dzGymLogV2',JSON.stringify(data))}function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const has=v=>v&&(v.set||v.rep||v.kg);
 function sessions(r){const s=new Set();for(const k of Object.keys(data)){const m=k.match(/^([a-z]+)_(\d{4}-\d\d-\d\d)_\d+$/);if(m&&m[1]===r&&has(data[k]))s.add(m[2])}return[...s].sort()}
@@ -358,7 +358,7 @@ navigator.storage?.persist?.();
 
 const loadE=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{return d}};
 let ep={sex:5,age:20,height:179,weight:62,goal:70,days:90,activity:1.35,...loadE('dzEnergyProfile',{})}, meals=loadE('dzcalolog',{}), gym=loadE('dzGymEnergy',{});
-function saveE(){localStorage.setItem('dzEnergyProfile',JSON.stringify(ep));localStorage.setItem('dzcalolog',JSON.stringify(meals));localStorage.setItem('dzGymEnergy',JSON.stringify(gym))}
+function saveE(){localStorage.setItem('dzEnergyProfile',JSON.stringify(ep));localStorage.setItem('dzGymEnergy',JSON.stringify(gym))}
 const enFmt=(n,d=0)=>Number(n).toLocaleString('vi-VN',{maximumFractionDigits:d});const et=(a,b)=>`<div class="etile"><small>${a}</small><b>${b}</b></div>`;
 function baseE(){return (10*ep.weight+6.25*ep.height-5*ep.age+ep.sex)*ep.activity}function burn(x){return Math.max(0,(x.met-1)*3.5*x.weight/200*x.minutes)}function dayBurn(d){return Object.entries(gym).filter(([k])=>k.endsWith('_'+d)).reduce((a,[k,x])=>a+burn(x),0)}function extraE(){return (ep.goal-ep.weight)*7700/ep.days}function targetE(d){return baseE()+dayBurn(d)+extraE()}
 function profilePanel(){return `<section class="energy"><h2>Hồ sơ cơ thể</h2><form onsubmit="saveProfile(event)"><div class="energygrid">${[['age','Tuổi',18,100],['height','Chiều cao cm',100,250],['weight','Cân nặng kg',30,300],['goal','Mục tiêu kg',30,300],['days','Thời gian ngày',1,3650]].map(([k,t,min,max])=>`<label>${t}<input name="${k}" type="number" min="${min}" max="${max}" step="any" required value="${ep[k]}"></label>`).join('')}<label>Giới tính<select name="sex"><option value="5" ${ep.sex===5?'selected':''}>Nam</option><option value="-161" ${ep.sex===-161?'selected':''}>Nữ</option></select></label></div><label>Vận động ngoài gym<select name="activity">${[[1.2,'Ít vận động'],[1.35,'Đi lại nhẹ'],[1.5,'Đi lại nhiều'],[1.7,'Lao động nặng']].map(([v,t])=>`<option value="${v}" ${ep.activity===v?'selected':''}>${t}</option>`).join('')}</select></label><button>Lưu hồ sơ</button></form><div class="energygrid">${et('BMR',enFmt(baseE()/ep.activity))}${et('TDEE ngoài gym',enFmt(baseE()))}${et('Calo cần ăn hôm nay',enFmt(targetE(todayStr())))}${et('Protein tham khảo',enFmt(ep.weight*1.6)+'–'+enFmt(ep.weight*2.2)+' g')}</div><p class="hint">Mục tiêu chênh lệch ${enFmt(extraE())} kcal/ngày. ${Math.abs(extraE())>750?'Mục tiêu khá gấp; nên kéo dài thời gian.':''} TDEE nền không gồm gym.</p></section>`}
@@ -398,7 +398,7 @@ function nutritionToday(day) {
       <div class="calorie-lead">
         <h3 id="calorie-title">Mục tiêu năng lượng</h3>
         <p class="calorie-goal">${nutritionReading(goal, 'kcal')}</p>
-        ${hasIntake ? '' : `<button class="nutrition-import-link" type="button" aria-label="Nhập dữ liệu hôm nay">Nhập dữ liệu ${IC.next}</button>`}
+        <button class="nutrition-macro-link" type="button">${hasIntake ? 'Sửa macro' : 'Nhập macro'} ${IC.next}</button>
       </div>
       <div class="calorie-dial" style="--goal-progress:${progress}%" role="img"
         aria-label="${hasRatio ? percent + ' mục tiêu' : hasIntake ? 'Không có tỷ lệ mục tiêu' : 'Chưa ghi lượng calo đã ăn'}">
@@ -420,22 +420,118 @@ function nutritionToday(day) {
   </div>`;
 }
 
+const macroFields = [
+  ['calories', 'Calo', 'kcal'],
+  ['protein', 'Protein', 'g'],
+  ['carb', 'Carb', 'g'],
+  ['fat', 'Fat', 'g']
+];
+const macroPageName = 'Nhập macro hôm nay';
+
+function macroForm(day) {
+  const meal = meals[day];
+  return `<div class="macro-entry">
+    <header class="nutrition-today-heading">
+      <h2>${macroPageName}</h2>
+      <time datetime="${day}">${IC.cal}<span>${fmt(day)}</span></time>
+    </header>
+    <form class="macro-form" data-day="${day}">
+      <p>Nhập tổng lượng đã ăn trong ngày.</p>
+      <div class="macro-field-grid">
+        ${macroFields.map(([name, label, unit], index) => `
+          <label class="macro-field">
+            <span class="macro-field-label">${label}</span>
+            <span class="macro-value">
+              <input name="${name}" type="number" inputmode="decimal" min="0" step="any" required
+                placeholder="0" value="${Number.isFinite(meal?.[index]) ? meal[index] : ''}">
+              <span class="macro-unit">${unit}</span>
+            </span>
+          </label>`).join('')}
+      </div>
+      <button class="macro-save" type="submit">Lưu macro</button>
+      <p class="macro-status" role="status"></p>
+    </form>
+  </div>`;
+}
+
+function saveTodayMacros(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const day = todayStr();
+  const status = form.querySelector('.macro-status');
+  if (day !== form.dataset.day) {
+    form.dataset.day = day;
+    const stamp = form.closest('.macro-entry').querySelector('time');
+    stamp.dateTime = day;
+    stamp.querySelector('span').textContent = fmt(day);
+    status.textContent = 'Đã sang ngày ' + fmt(day) + '. Kiểm tra số liệu rồi nhấn Lưu macro.';
+    return;
+  }
+  const values = macroFields.map(([name]) => form.elements.namedItem(name).valueAsNumber);
+  if (values.some(value => !Number.isFinite(value) || value < 0)) {
+    status.textContent = 'Nhập đủ bốn thông số từ 0 trở lên.';
+    return;
+  }
+  try {
+    saveMeals({ ...loadE('dzcalolog', {}), [day]: values });
+  } catch {
+    status.textContent = 'Chưa lưu được macro. Vui lòng thử lại.';
+    return;
+  }
+  render();
+  app.querySelector('.macro-status').textContent = 'Đã lưu macro ngày ' + fmt(day) + '.';
+}
+
+function nutritionJournal() {
+  return `<section class="energy" aria-labelledby="nutrition-log">
+    <h2 id="nutrition-log">NHẬT KÝ</h2>
+    <table><thead><tr><th>Ngày</th><th>Kcal</th><th>P</th><th>C</th><th>F</th><th></th></tr></thead><tbody>
+      ${Object.keys(meals).sort().reverse().map(day => `<tr><td>${esc(day)}</td>
+        ${meals[day].map(value => `<td>${enFmt(value, 1)}</td>`).join('')}
+        <td><button type="button" onclick="removeMeal('${day}')">×</button></td></tr>`).join('')}
+    </tbody></table>
+    <button type="button" onclick="exportMealLog()">Xuất nhật ký</button>
+  </section>`;
+}
+
+function exportMealLog() {
+  const text = Object.keys(meals).sort().map(day => [day, ...meals[day]].join(';')).join('\n');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  link.download = 'nhat-ky.txt';
+  link.click();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+}
+
 function nutrition() {
-  const d = todayStr();
+  const day = todayStr();
   renderPagedView('NUTRITION', 'Năng lượng & dưỡng chất', [
-    ['Hôm nay', nutritionToday(d)],
-    ['Nhập TXT', `<section class="energy" aria-labelledby="nutrition-import"><h2 id="nutrition-import">NHẬP TXT</h2><input type="file" accept=".txt,text/plain" onchange="readMeal(this)"><textarea id="mealRaw" placeholder="${d};2260;92;276;87"></textarea><button onclick="importMeal()">Nhập dữ liệu</button><button onclick="downloadE('mau-dinh-duong.txt','# Ngày;Calo;Protein;Carb;Fat\\n'+todayStr()+';2260;92;276;87')">Tải mẫu TXT</button><button onclick="downloadE('nhat-ky.txt',Object.keys(meals).sort().map(k=>[k,...meals[k]].join(';')).join('\\n'))">Xuất nhật ký</button><p class="hint">Ngày;Calo;Protein;Carb;Fat — macro tính bằng gram. Ngày trùng được cập nhật.</p><p id="mealMsg" role="status"></p></section>`],
-    ['Nhật ký', `<section class="energy" aria-labelledby="nutrition-log"><h2 id="nutrition-log">NHẬT KÝ</h2><table><thead><tr><th>Ngày</th><th>Kcal</th><th>P</th><th>C</th><th>F</th><th></th></tr></thead><tbody>${Object.keys(meals).sort().reverse().map(k=>`<tr><td>${esc(k)}</td>${meals[k].map(v=>`<td>${enFmt(v,1)}</td>`).join('')}<td><button onclick="removeMeal('${k}')">×</button></td></tr>`).join('')}</tbody></table></section>`]
+    ['Hôm nay', nutritionToday(day)],
+    [macroPageName, macroForm(day)],
+    ['Nhật ký', nutritionJournal()]
   ]);
-  app.querySelector('.nutrition-import-link')?.addEventListener('click', () => {
-    const importPage = app.querySelector('.page-dots button[aria-label="Nhập TXT"]');
-    importPage.focus({ preventScroll: true });
-    importPage.click();
+  app.querySelector('.macro-form').addEventListener('submit', saveTodayMacros);
+  app.querySelector('.nutrition-macro-link').addEventListener('click', () => {
+    const macroPage = app.querySelector(`.page-dots button[aria-label="${macroPageName}"]`);
+    macroPage.focus({ preventScroll: true });
+    macroPage.click();
   });
 }
-async function readMeal(el){if(el.files[0])document.getElementById('mealRaw').value=await el.files[0].text()}function importMeal(){let pending={},errors=[];document.getElementById('mealRaw').value.split(/\r?\n/).forEach((l,i)=>{l=l.trim();if(!l||l.startsWith('#'))return;let [k,...v]=l.split(';').map(x=>x.trim());if(!/^\d{4}-\d\d-\d\d$/.test(k)||!Number.isFinite(Date.parse(k))||new Date(k).toISOString().slice(0,10)!==k||v.length!==4||v.some(x=>!x||!Number.isFinite(+x)||+x<0)){errors.push(i+1);return}pending[k]=v.map(Number)});if(errors.length||!Object.keys(pending).length){document.getElementById('mealMsg').textContent=errors.length?'Lỗi dòng '+errors.join(', '):'Chưa có dữ liệu';return}Object.assign(meals,pending);saveE();render();document.getElementById('mealMsg').textContent='Đã nhập '+Object.keys(pending).length+' ngày'}function removeMeal(k){if(confirm('Xóa ngày '+k+'?')){delete meals[k];saveE();render()}}function downloadE(n,t){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+
+function removeMeal(day) {
+  if (!confirm('Xóa ngày ' + day + '?')) return;
+  const updated = loadE('dzcalolog', {});
+  delete updated[day];
+  saveMeals(updated);
+  render();
+}
+function saveMeals(updated) {
+  localStorage.setItem('dzcalolog', JSON.stringify(updated));
+  meals = updated;
+}
 function energyForecast(){let end=todayStr(),start=new Date(end+'T12:00:00');start.setDate(start.getDate()-6);let keys=Object.keys(meals).filter(k=>k<=end&&Date.parse(k)>=Date.parse(end)-6*86400000),avg=keys.length?keys.reduce((s,k)=>s+meals[k][0],0)/keys.length:0,gavg=Object.entries(gym).filter(([k])=>{let d=k.slice(-10);return d<=end&&Date.parse(d)>=Date.parse(end)-6*86400000}).reduce((s,[k,x])=>s+burn(x),0)/7,t=baseE()+gavg,delta=(avg-t)/7700;return `<section class="energy"><h2>Dự báo cân nặng</h2><div class="energygrid">${et('Gym TB / ngày',enFmt(gavg))}${et('TDEE TB / ngày',enFmt(t))}${et('Calo cần ăn TB',enFmt(t+extraE()))}${et('Calo ăn TB',keys.length?enFmt(avg):'—')}${[7,30].map(n=>et('Sau '+n+' ngày',keys.length?(delta>=0?'+':'')+enFmt(delta*n,2)+' kg':'—')).join('')}</div><p class="hint">${keys.length}/7 ngày ăn đã ghi. Gym lấy tổng 7 ngày chia 7; ngày chưa ghi gym được giả định nghỉ. Dự báo giả định tiếp tục mức ăn và vận động này, dùng 7.700 kcal/kg; không phải dự báo tăng cơ.</p></section>`}
 addEventListener('storage', event => {
+  if (event.key === 'dzcalolog' || event.key === null) meals = loadE('dzcalolog', {});
   if (event.key === 'dzGymLogV2' || event.key === null) data = loadE('dzGymLogV2', {});
   else if (event.key !== 'dzGymEnergy') return;
   gym = loadE('dzGymEnergy', {});
