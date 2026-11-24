@@ -16,7 +16,7 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; color: var(--ink); background: var(--bg); }
+body { margin: 0; overflow-x: clip; color: var(--ink); background: var(--bg); }
 button, input, select, textarea { font: inherit; }
 button, .filebtn { cursor: pointer; }
 :focus-visible { outline: 2px solid var(--lime); outline-offset: 3px; }
@@ -81,8 +81,11 @@ button, .filebtn { cursor: pointer; }
 .bar { display: block; height: 5px; overflow: hidden; border-radius: 999px; background: #ffffff22; }
 .bar u { display: block; height: 100%; border-radius: inherit; background: var(--accent, var(--lime)); transition: width .22s; }
 .foot { position: fixed; z-index: 5; inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: min(620px, calc(100% - 24px)); margin: auto; padding: 5px; border: 1px solid var(--line); border-radius: 20px; background: #171d22f5; box-shadow: 0 12px 40px #0008; backdrop-filter: blur(18px); }
-.foot button { min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 2px; border: 1px solid transparent; border-radius: 14px; background: transparent; color: var(--mute); font-size: 10px; font-weight: 700; }
-.foot button span { display: grid; font-size: 19px; }
+.foot button { min-height: 52px; display: grid; justify-items: center; align-content: center; row-gap: 4px; padding: 2px; border: 1px solid transparent; border-radius: 14px; background: transparent; color: var(--mute); font-size: 10px; font-weight: 700; }
+.foot-icon { display: grid; font-size: 19px; }
+.foot-label { max-height: 16px; overflow: hidden; transition: opacity .16s ease, max-height .2s ease; }
+.dock-compact .foot button { min-height: 44px; row-gap: 0; }
+.dock-compact .foot-label { max-height: 0; opacity: 0; }
 .foot button.active { border-color: #d6ff5338; background: linear-gradient(160deg, #d6ff5329, #d6ff530d); color: var(--lime); }
 .top { padding-bottom: 22px; }
 .topline { display: flex; align-items: center; gap: 12px; }
@@ -167,6 +170,7 @@ button, .filebtn { cursor: pointer; }
 .keypad-grid .key-del { color: #ffb1b8; }
 .keypad-actions button { text-align: center; }
 .settings button, .filebtn, .save, .sugall, .sug, .energy button, .keypad-actions button, .keypad-grid button, .back, .keypad-close, .foot button { transition: border-color .15s, filter .15s, transform .15s; }
+.foot button { transition: border-color .15s, filter .15s, transform .15s, min-height .2s ease, row-gap .2s ease; }
 :is(button, .filebtn):not(:disabled):active { filter: brightness(.86); transform: translateY(1px); }
 .hide { display: none !important; }
 
