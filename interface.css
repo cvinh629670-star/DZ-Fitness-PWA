@@ -178,6 +178,146 @@ button, .filebtn { cursor: pointer; }
 .page-dots button { display: grid; place-items: center; width: 44px; height: 38px; padding: 0; border: 0; background: none; }
 .page-dots span { width: 7px; height: 7px; border-radius: 999px; background: var(--mute); transition: width .18s, background .18s; }
 .page-dots [aria-current="true"] span { width: 20px; background: var(--lime); }
+.nutrition-today {
+  display: grid;
+  gap: clamp(12px, 2dvh, 24px);
+}
+.nutrition-today-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+.nutrition-today-heading h2 {
+  margin: 0;
+  font-size: clamp(23px, 4vw, 36px);
+  letter-spacing: -.06em;
+}
+.nutrition-today-heading time {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--mute);
+  font-size: 11px;
+}
+.nutrition-today-heading time .i { color: var(--lime); font-size: 14px; }
+.calorie-card {
+  --dial-accent: var(--lime);
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(10px, 2.5dvh, 24px);
+  padding: clamp(13px, 3.5vw, 32px);
+  border: 1px solid #414d34;
+  border-radius: 20px;
+  background: radial-gradient(ellipse at 90% 0%, #3c5125 0%, transparent 70%), linear-gradient(135deg, #202b21, #121a18 65%);
+}
+.calorie-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background-image: linear-gradient(#d6ff530b 1px, transparent 1px), linear-gradient(90deg, #d6ff530b 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: linear-gradient(90deg, transparent 15%, black);
+  pointer-events: none;
+}
+.calorie-card.over-target { --dial-accent: #ffd091; }
+.calorie-lead h3, .nutrition-detail h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(12px, 2vw, 17px);
+  font-weight: 700;
+}
+.calorie-lead h3 { color: #dde9d5; }
+.nutrition-today strong { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calorie-goal { margin: 5px 0 0; color: var(--lime); line-height: 1; }
+.calorie-goal strong {
+  font-size: clamp(34px, 8vw, 76px);
+  font-weight: 800;
+  letter-spacing: -.075em;
+}
+.nutrition-unit { color: var(--mute); font-size: clamp(10px, 1.4vw, 13px); font-weight: 600; }
+.calorie-goal .nutrition-unit { color: #d7e8be; font-size: clamp(11px, 2vw, 16px); }
+.nutrition-import-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+  margin: 4px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  color: #e3ff9d;
+  background: transparent;
+  font-size: clamp(11px, 1.5vw, 14px);
+  font-weight: 700;
+  text-align: left;
+}
+.nutrition-import-link:hover, .nutrition-import-link:focus-visible { text-decoration: underline; }
+.nutrition-import-link .i { font-size: 15px; }
+.calorie-dial {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: clamp(86px, 24vw, 162px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #0c140e4d;
+}
+.calorie-dial::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: conic-gradient(var(--dial-accent) var(--goal-progress), #dfffca35 0);
+  mask-image: radial-gradient(circle closest-side, transparent 81%, black 82%);
+}
+.calorie-dial-label { display: grid; gap: 1px; max-width: 69%; text-align: center; }
+.calorie-dial-label strong { color: var(--dial-accent); font-size: clamp(20px, 5.7vw, 42px); line-height: 1; letter-spacing: -.05em; }
+.calorie-dial-label span { color: #d7e8be; font-size: clamp(9px, 1.6vw, 12px); }
+.calorie-breakdown, .nutrition-metrics { display: grid; margin: 0; }
+.calorie-breakdown {
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-top: clamp(7px, 1.5dvh, 14px);
+  border-top: 1px solid #d8ffad30;
+}
+.calorie-breakdown > div + div {
+  padding-left: 12px;
+  border-left: 1px solid #d8ffad30;
+}
+.nutrition-today dt { color: var(--mute); font-size: clamp(10px, 1.6vw, 13px); }
+.nutrition-today dd { margin: 4px 0 0; line-height: 1.2; }
+.calorie-breakdown dd strong { font-size: clamp(20px, 4vw, 34px); letter-spacing: -.055em; }
+.calorie-card.over-target .calorie-breakdown > div + div dd strong { color: var(--dial-accent); }
+.nutrition-detail { min-width: 0; }
+.nutrition-metrics {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(5px, 1vw, 12px);
+  margin-top: 6px;
+}
+.nutrition-metric {
+  min-width: 0;
+  padding: clamp(7px, 1.5vw, 17px);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+.nutrition-metric dd strong { font-size: clamp(15px, 2.7vw, 25px); letter-spacing: -.04em; }
+.nutrition-macros .nutrition-metric {
+  border-top: 2px solid var(--macro-color, #ff9ea8);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--macro-color, #ff9ea8) 11%, var(--paper)), var(--paper) 85%);
+}
+.nutrition-macros .nutrition-metric:nth-child(2) { --macro-color: #8edcff; }
+.nutrition-macros .nutrition-metric:nth-child(3) { --macro-color: #ffd091; }
 .line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .line-chart svg { display: block; width: 100%; max-height: 390px; }
 .line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -227,6 +367,8 @@ button, .filebtn { cursor: pointer; }
   .paper > :is(.sugall, .save, .mini, .energy) { grid-column: 1 / -1; }
   .settings > :is(button, .filebtn) { max-width: 540px; }
   .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .nutrition-today { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nutrition-today-heading, .calorie-card { grid-column: 1 / -1; }
   .keypad-overlay { align-items: center; }
   .keypad-panel { border-radius: 22px; }
 }
@@ -238,8 +380,19 @@ button, .filebtn { cursor: pointer; }
   .home .workcard { padding: 8px 11px; font-size: 18px; gap: 9px; border-radius: 15px; }
   .home .workcard .emoji { width: 37px; height: 37px; border-radius: 10px; font-size: 19px; }
   .home .workcard small { margin: 3px 0 6px; }
-  [data-view="nutrition"] .paged-panel:first-child .energygrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  [data-view="nutrition"] .paged-panel:first-child .etile { padding: 8px; }
+}
+@media (max-height: 650px) {
+  [data-paged-view="nutrition"] .header { padding-block: calc(8px + env(safe-area-inset-top)) 8px; }
+  [data-paged-view="nutrition"] .header h1 { font-size: clamp(24px, 4vw, 34px); }
+  [data-paged-view="nutrition"] .header .sub { margin-top: 4px; font-size: 12px; }
+  .nutrition-today { gap: 8px; }
+  .nutrition-today-heading time { padding-block: 4px; }
+  .calorie-card { gap: 6px; padding: clamp(9px, 2vw, 16px); }
+  .calorie-dial { width: clamp(72px, 13dvh, 106px); }
+  .calorie-dial-label strong { font-size: clamp(18px, 4.3dvh, 34px); }
+  .nutrition-metrics { margin-top: 4px; }
+  .nutrition-metric { padding: 5px; }
+  .nutrition-today dd { margin-top: 2px; }
 }
 @media (max-width: 719px) and (max-height: 650px) {
   .home .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }

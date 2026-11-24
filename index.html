@@ -1,4 +1,4 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c0f12"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=15"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#0c0f12"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=16"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
 const routines={push:['Landmine Press','Bench Press','Incline Smith Machine Press','Incline Dumbbell Press','Dips','Lateral Raise Combo (Lateral / Front / Overhead Press)','Tricep Extension','Tricep Pushdown'],pull:['Weighted Pull-up','Seated Cable Row','Barbell Row','Face Pull','Rear Delt Cable Fly','Cable Biceps Curl','Hammer Curl','Wrist Combo (Curl / Reverse Curl / Twist)'],leg:['Jump Squat','Deadlift','Leg Press','Lunge Combo','Leg Extension','Leg Curl','Calf Kick','Abs']};const I=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;const colors={push:'#ff9ea8',pull:'#8edcff',leg:'#a6ed9d'},icons={push:I('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),pull:I('<path d="M3 4h18M8 4v5M16 4v5"/><circle cx="12" cy="12" r="2.6"/><path d="M9 21v-3.5a3 3 0 0 1 6 0V21"/>'),leg:I('<path d="M4 20h5v-5h5v-5h6"/><path d="M15 5h5v5M20 5l-6 6"/>')},IC={cal:I('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),home:I('<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>'),stats:I('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'),set:I('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),next:I('<path d="M9 6l6 6-6 6"/>')};let view='home',routine='push',date=todayStr();let data={};try{data=JSON.parse(localStorage.getItem('dzGymLogV2')||'{}')}catch{}const app=document.getElementById('app');const fmt=d=>d.split('-').reverse().join('/');const key=(r,d,i)=>`${r}_${d}_${i}`;const stored=(r,d,i)=>data[key(r,d,i)]||{};function persist(){localStorage.setItem('dzGymLogV2',JSON.stringify(data))}function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const has=v=>v&&(v.set||v.rep||v.kg);
 function sessions(r){const s=new Set();for(const k of Object.keys(data)){const m=k.match(/^([a-z]+)_(\d{4}-\d\d-\d\d)_\d+$/);if(m&&m[1]===r&&has(data[k]))s.add(m[2])}return[...s].sort()}
@@ -365,13 +365,73 @@ function profilePanel(){return `<section class="energy"><h2>Hồ sơ cơ thể</
 function saveProfile(e){e.preventDefault();for(const [k,v] of new FormData(e.target))ep[k]=Number(v);saveE();render()}
 function gymPanel(){let x=gym[routine+'_'+date]||{minutes:60,met:3.5};return `<section class="energy"><h2>GYM ENERGY</h2><form onsubmit="saveGym(event)"><label>Thời lượng cả buổi (phút, gồm nghỉ)<input name="minutes" type="number" min="1" max="300" required value="${x.minutes}"></label><label>Cường độ trung bình<select name="met">${[[3.5,'Tập tạ vừa · 3.5 MET'],[5,'Tập nặng · 5 MET'],[6,'Tập rất nặng · 6 MET']].map(([v,t])=>`<option value="${v}" ${x.met===v?'selected':''}>${t}</option>`).join('')}</select></label><button>Lưu calo buổi tập</button></form><div class="energygrid">${et('Calo gym ròng đã lưu',gym[routine+'_'+date]?enFmt(burn(gym[routine+'_'+date])):'—')}${et('Cần ăn hôm nay',enFmt(targetE(date)))}</div><button onclick="deleteGym()">Xóa calo buổi này</button><p class="hint">Ước tính MET theo thời lượng và cân nặng; không quy đổi trực tiếp volume tạ sang kcal. Chỉ cộng phần tiêu hao trên mức nghỉ.</p></section>`}
 function saveGym(e){e.preventDefault();if(!allowTrainingEdit(routine))return;let f=new FormData(e.target);gym[routine+'_'+date]={minutes:+f.get('minutes'),met:+f.get('met'),weight:ep.weight};saveE();render()}function deleteGym(){if(!allowTrainingEdit(routine))return;delete gym[routine+'_'+date];saveE();render()}
+function nutritionReading(value, unit) {
+  if (!Number.isFinite(value)) return '<strong>—</strong>';
+  return `<strong>${enFmt(value)}</strong> <span class="nutrition-unit">${unit}</span>`;
+}
+
+function nutritionMetrics(items, unit) {
+  return `<dl class="nutrition-metrics">${items.map(([label, value]) => `
+    <div class="nutrition-metric">
+      <dt>${label}</dt><dd>${nutritionReading(value, unit)}</dd>
+    </div>`).join('')}</dl>`;
+}
+
+function nutritionToday(day) {
+  const meal = meals[day];
+  const eaten = meal?.[0];
+  const hasIntake = Number.isFinite(eaten);
+  const base = baseE();
+  const gymBurn = dayBurn(day);
+  const goal = targetE(day);
+  const balance = hasIntake ? goal - eaten : NaN;
+  const ratio = hasIntake && goal > 0 ? eaten / goal * 100 : NaN;
+  const hasRatio = Number.isFinite(ratio);
+  const progress = hasRatio ? Math.min(100, ratio) : 0;
+  const percent = hasRatio ? enFmt(ratio) + '%' : '—';
+  return `<div class="nutrition-today">
+    <header class="nutrition-today-heading">
+      <h2>Hôm nay</h2>
+      <time datetime="${day}">${IC.cal}${fmt(day)}</time>
+    </header>
+    <section class="calorie-card${balance < 0 ? ' over-target' : ''}" aria-labelledby="calorie-title">
+      <div class="calorie-lead">
+        <h3 id="calorie-title">Mục tiêu năng lượng</h3>
+        <p class="calorie-goal">${nutritionReading(goal, 'kcal')}</p>
+        ${hasIntake ? '' : `<button class="nutrition-import-link" type="button" aria-label="Nhập dữ liệu hôm nay">Nhập dữ liệu ${IC.next}</button>`}
+      </div>
+      <div class="calorie-dial" style="--goal-progress:${progress}%" role="img"
+        aria-label="${hasRatio ? percent + ' mục tiêu' : hasIntake ? 'Không có tỷ lệ mục tiêu' : 'Chưa ghi lượng calo đã ăn'}">
+        <div class="calorie-dial-label" aria-hidden="true"><strong>${percent}</strong><span>mục tiêu</span></div>
+      </div>
+      <dl class="calorie-breakdown">
+        <div><dt>Đã ăn</dt><dd>${nutritionReading(eaten, 'kcal')}</dd></div>
+        <div><dt>${balance < 0 ? 'Vượt mục tiêu' : 'Còn thiếu'}</dt><dd>${nutritionReading(Math.abs(balance), 'kcal')}</dd></div>
+      </dl>
+    </section>
+    <section class="nutrition-detail" aria-labelledby="nutrition-expenditure">
+      <h3 id="nutrition-expenditure">Tiêu hao năng lượng</h3>
+      ${nutritionMetrics([['TDEE nền', base], ['Gym ròng', gymBurn], ['TDEE hôm nay', base + gymBurn]], 'kcal')}
+    </section>
+    <section class="nutrition-detail nutrition-macros" aria-labelledby="nutrition-macros">
+      <h3 id="nutrition-macros">Dưỡng chất đã ăn</h3>
+      ${nutritionMetrics([['Protein', meal?.[1]], ['Carb', meal?.[2]], ['Fat', meal?.[3]]], 'g')}
+    </section>
+  </div>`;
+}
+
 function nutrition() {
-  const d = todayStr(), a = meals[d];
+  const d = todayStr();
   renderPagedView('NUTRITION', 'Năng lượng & dưỡng chất', [
-    ['Hôm nay', `<section class="energy" aria-labelledby="nutrition-today"><h2 id="nutrition-today">HÔM NAY</h2><div class="energygrid">${et('TDEE nền',enFmt(baseE()))}${et('Gym ròng',enFmt(dayBurn(d)))}${et('TDEE hôm nay',enFmt(baseE()+dayBurn(d)))}${et('Cần ăn',enFmt(targetE(d)))}${et('Đã ăn',a?enFmt(a[0]):'—')}${et('Còn thiếu theo mục tiêu',a?enFmt(Math.max(0,targetE(d)-a[0])):'—')}${['Protein','Carb','Fat'].map((t,i)=>et(t,a?enFmt(a[i+1])+' g':'—')).join('')}</div></section>`],
+    ['Hôm nay', nutritionToday(d)],
     ['Nhập TXT', `<section class="energy" aria-labelledby="nutrition-import"><h2 id="nutrition-import">NHẬP TXT</h2><input type="file" accept=".txt,text/plain" onchange="readMeal(this)"><textarea id="mealRaw" placeholder="${d};2260;92;276;87"></textarea><button onclick="importMeal()">Nhập dữ liệu</button><button onclick="downloadE('mau-dinh-duong.txt','# Ngày;Calo;Protein;Carb;Fat\\n'+todayStr()+';2260;92;276;87')">Tải mẫu TXT</button><button onclick="downloadE('nhat-ky.txt',Object.keys(meals).sort().map(k=>[k,...meals[k]].join(';')).join('\\n'))">Xuất nhật ký</button><p class="hint">Ngày;Calo;Protein;Carb;Fat — macro tính bằng gram. Ngày trùng được cập nhật.</p><p id="mealMsg" role="status"></p></section>`],
     ['Nhật ký', `<section class="energy" aria-labelledby="nutrition-log"><h2 id="nutrition-log">NHẬT KÝ</h2><table><thead><tr><th>Ngày</th><th>Kcal</th><th>P</th><th>C</th><th>F</th><th></th></tr></thead><tbody>${Object.keys(meals).sort().reverse().map(k=>`<tr><td>${esc(k)}</td>${meals[k].map(v=>`<td>${enFmt(v,1)}</td>`).join('')}<td><button onclick="removeMeal('${k}')">×</button></td></tr>`).join('')}</tbody></table></section>`]
   ]);
+  app.querySelector('.nutrition-import-link')?.addEventListener('click', () => {
+    const importPage = app.querySelector('.page-dots button[aria-label="Nhập TXT"]');
+    importPage.focus({ preventScroll: true });
+    importPage.click();
+  });
 }
 async function readMeal(el){if(el.files[0])document.getElementById('mealRaw').value=await el.files[0].text()}function importMeal(){let pending={},errors=[];document.getElementById('mealRaw').value.split(/\r?\n/).forEach((l,i)=>{l=l.trim();if(!l||l.startsWith('#'))return;let [k,...v]=l.split(';').map(x=>x.trim());if(!/^\d{4}-\d\d-\d\d$/.test(k)||!Number.isFinite(Date.parse(k))||new Date(k).toISOString().slice(0,10)!==k||v.length!==4||v.some(x=>!x||!Number.isFinite(+x)||+x<0)){errors.push(i+1);return}pending[k]=v.map(Number)});if(errors.length||!Object.keys(pending).length){document.getElementById('mealMsg').textContent=errors.length?'Lỗi dòng '+errors.join(', '):'Chưa có dữ liệu';return}Object.assign(meals,pending);saveE();render();document.getElementById('mealMsg').textContent='Đã nhập '+Object.keys(pending).length+' ngày'}function removeMeal(k){if(confirm('Xóa ngày '+k+'?')){delete meals[k];saveE();render()}}function downloadE(n,t){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=n;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 function energyForecast(){let end=todayStr(),start=new Date(end+'T12:00:00');start.setDate(start.getDate()-6);let keys=Object.keys(meals).filter(k=>k<=end&&Date.parse(k)>=Date.parse(end)-6*86400000),avg=keys.length?keys.reduce((s,k)=>s+meals[k][0],0)/keys.length:0,gavg=Object.entries(gym).filter(([k])=>{let d=k.slice(-10);return d<=end&&Date.parse(d)>=Date.parse(end)-6*86400000}).reduce((s,[k,x])=>s+burn(x),0)/7,t=baseE()+gavg,delta=(avg-t)/7700;return `<section class="energy"><h2>Dự báo cân nặng</h2><div class="energygrid">${et('Gym TB / ngày',enFmt(gavg))}${et('TDEE TB / ngày',enFmt(t))}${et('Calo cần ăn TB',enFmt(t+extraE()))}${et('Calo ăn TB',keys.length?enFmt(avg):'—')}${[7,30].map(n=>et('Sau '+n+' ngày',keys.length?(delta>=0?'+':'')+enFmt(delta*n,2)+' kg':'—')).join('')}</div><p class="hint">${keys.length}/7 ngày ăn đã ghi. Gym lấy tổng 7 ngày chia 7; ngày chưa ghi gym được giả định nghỉ. Dự báo giả định tiếp tục mức ăn và vận động này, dùng 7.700 kcal/kg; không phải dự báo tăng cơ.</p></section>`}
