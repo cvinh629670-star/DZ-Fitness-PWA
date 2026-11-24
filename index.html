@@ -98,7 +98,7 @@ function combinedChart(volume, progress, start, end, unit) {
     guideTops.set(x, Math.min(y, guideTops.get(x) ?? bottom));
   }
   const guides = Array.from(guideTops, ([x, y]) =>
-    `<path d="M ${x} ${y} V ${bottom}"/><path class="chart-day-tick" d="M ${x} ${bottom} v 4"/>`
+    `<line x1="${x}" x2="${x}" y1="${y}" y2="${bottom + 5}" vector-effect="non-scaling-stroke"/>`
   ).join('');
   const axis = (ticks, x, anchor, color) => `<g class="${color}">${ticks.map(([value, y]) =>
     `<text x="${x}" y="${y}" text-anchor="${anchor}" dominant-baseline="middle">${chartNumber.format(value)}</text>`
@@ -122,7 +122,10 @@ function combinedChart(volume, progress, start, end, unit) {
     <svg viewBox="0 0 400 198" aria-hidden="true">
       ${volume.length ? `<g class="chart-volume"><text x="${left - 7}" y="13" text-anchor="end">kg × rep</text></g>` : ''}
       ${progress.length ? `<g class="chart-progress"><text x="${right + 7}" y="13">${unit}</text></g>` : ''}
-      <g class="chart-grid">${grid}</g><g class="chart-guides">${guides}</g>${labels}
+      <g class="chart-grid">${grid}</g>
+      <g class="chart-guides" stroke="#9aabba" stroke-width="1.5">${guides}</g>
+      <line x1="${left}" x2="${right}" y1="${bottom}" y2="${bottom}" stroke="#9aabba" vector-effect="non-scaling-stroke"/>
+      ${labels}
       ${volume.length ? axis(volumeTicks, left - 7, 'end', 'chart-volume') + draw(volumeCoords, volume, 'kg × rep', 'chart-volume') : ''}
       ${progress.length ? axis(progressTicks, right + 7, 'start', 'chart-progress') + draw(progressCoords, progress, unit, 'chart-progress') : ''}
     </svg>
