@@ -8,6 +8,9 @@
   --ink: #f5f7f8;
   --mute: #a7b3bf;
   --lime: #d6ff53;
+  --control: #202930;
+  --control-border: #3e4d58;
+  --control-edge: inset 0 1px #ffffff0d, 0 2px 4px #0003;
   --frame: 1200px;
   --gutter: clamp(16px, 4vw, 46px);
 }
@@ -78,13 +81,13 @@ button, .filebtn { cursor: pointer; }
 .bar { display: block; height: 5px; overflow: hidden; border-radius: 999px; background: #ffffff22; }
 .bar u { display: block; height: 100%; border-radius: inherit; background: var(--accent, var(--lime)); transition: width .22s; }
 .foot { position: fixed; z-index: 5; inset: auto 12px calc(10px + env(safe-area-inset-bottom)) 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; width: min(620px, calc(100% - 24px)); margin: auto; padding: 5px; border: 1px solid var(--line); border-radius: 20px; background: #171d22f5; box-shadow: 0 12px 40px #0008; backdrop-filter: blur(18px); }
-.foot button { min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 2px; border: 0; border-radius: 14px; background: transparent; color: var(--mute); font-size: 10px; font-weight: 700; }
+.foot button { min-height: 52px; display: grid; justify-items: center; align-content: center; gap: 4px; padding: 2px; border: 1px solid transparent; border-radius: 14px; background: transparent; color: var(--mute); font-size: 10px; font-weight: 700; }
 .foot button span { display: grid; font-size: 19px; }
-.foot button.active { background: #d6ff531a; color: var(--lime); }
+.foot button.active { border-color: #d6ff5338; background: linear-gradient(160deg, #d6ff5329, #d6ff530d); color: var(--lime); }
 .top { padding-bottom: 22px; }
 .topline { display: flex; align-items: center; gap: 12px; }
 .top h2 { color: var(--accent); }
-.back, .keypad-close { flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 12px; background: var(--panel); color: var(--ink); font-size: 25px; }
+.back, .keypad-close { flex: none; width: 44px; height: 44px; padding: 0; border: 1px solid var(--control-border); border-radius: 14px; background: var(--control); box-shadow: var(--control-edge); color: var(--ink); font-size: 25px; }
 .tprog { display: grid; gap: 8px; margin-top: 20px; color: var(--mute); font-size: 13px; }
 .exercise, .srow, .energy, .analytics-panel { min-width: 0; padding: clamp(14px, 2.3vw, 24px); border: 1px solid var(--line); border-radius: 19px; background: var(--panel); }
 .exercise.done { border-color: color-mix(in srgb, var(--ac) 55%, var(--line)); }
@@ -92,21 +95,26 @@ button, .filebtn { cursor: pointer; }
 .exercise .n { flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 8px; background: #ffffff10; color: var(--mute); font-size: 12px; }
 .exercise.done .n { color: var(--bg); background: var(--ac); }
 .exbody { display: grid; grid-template-columns: minmax(0, 1.35fr) repeat(3, minmax(0, 1fr)); gap: 6px; }
-.exbody input, .prevcol, select, .energy input, .energy textarea { min-width: 0; min-height: 45px; padding: 10px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--paper); }
-.exbody input { min-height: 52px; padding-inline: 2px; text-align: center; font-weight: 700; cursor: pointer; caret-color: transparent; }
-.exbody input::placeholder { color: var(--mute); opacity: 1; }
-.prevcol { display: grid; align-content: center; gap: 2px; padding: 7px; }
+.exbody input, .prevcol, select, .energy input, .energy textarea { min-width: 0; min-height: 48px; padding: 11px 12px; border: 1px solid var(--control-border); border-radius: 13px; color: var(--ink); background: var(--paper); }
+.exercise-field { display: grid; align-content: start; gap: 4px; min-width: 0; border: 1px solid var(--control-border); border-radius: 13px; background: linear-gradient(160deg, #202a31, var(--paper)); box-shadow: var(--control-edge); cursor: pointer; }
+.exercise-field span { padding-top: 8px; color: var(--mute); font-size: 10px; font-weight: 700; text-align: center; }
+.exbody input { width: 100%; min-height: 44px; padding: 4px; text-align: center; font-size: 16px; font-weight: 800; font-variant-numeric: tabular-nums; cursor: pointer; caret-color: transparent; border-color: transparent; background: transparent; }
+.exbody input::placeholder { color: transparent; }
+.exercise-field:has(input:placeholder-shown) { background: var(--paper); }
+.exercise-field:focus-within { border-color: var(--ac); box-shadow: 0 0 0 2px color-mix(in srgb, var(--ac) 24%, transparent); }
+.exbody input:focus-visible { outline: 0; }
+.prevcol { display: grid; align-content: center; gap: 2px; padding: 7px; border-color: var(--line); }
 .prevcol small, .prevcol em { color: var(--mute); font-size: 10px; font-style: normal; }
 .prevcol b { font-size: 14px; }
 .settings button, .filebtn, .save, .sugall, .sug, .energy button, .keypad-actions button {
-  display: block; width: 100%; margin: 10px 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); color: var(--ink); font-size: 14px; font-weight: 700; text-align: left;
+  display: block; width: 100%; min-height: 46px; margin: 10px 0; padding: 12px 15px; border: 1px solid var(--control-border); border-radius: 14px; background: linear-gradient(160deg, var(--control), #181f24); box-shadow: var(--control-edge); color: var(--ink); font-size: 14px; font-weight: 700; text-align: left;
 }
 .save, .settings .install, .energy form button, .energy button[onclick="importMeal()"], .keypad-actions .key-done {
-  border-color: var(--lime); background: var(--lime); color: #121807; text-align: center;
+  border-color: #d6ff53; background: linear-gradient(160deg, #e7ff9b, var(--lime) 72%); box-shadow: inset 0 1px #ffffff87, 0 4px 14px #d6ff5322; color: #121807; text-align: center;
 }
 .sug { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 0; font-size: 12px; }
-.sug span { color: var(--ac); flex: none; }
-.settings .danger { color: #ff9ea8; }
+.sug span { padding: 5px 9px; border-radius: 8px; background: color-mix(in srgb, var(--ac) 13%, transparent); color: var(--ac); flex: none; }
+.settings .danger { color: #ffb1b8; border-color: #683f46; background: #302126; }
 .mini, .hint { color: var(--mute); font-size: 12px; line-height: 1.65; }
 .mini { margin: 0; }
 .settings h2, .energy h2 { margin: 0 0 12px; font-size: 19px; letter-spacing: -.035em; }
@@ -120,12 +128,14 @@ button, .filebtn { cursor: pointer; }
 .etile { padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: var(--paper); overflow-wrap: anywhere; }
 .etile small, .energy label, .chart-filter { color: var(--mute); font-size: 12px; }
 .etile b { display: block; margin-top: 7px; font-size: clamp(16px, 3vw, 25px); letter-spacing: -.045em; }
-.energy label, .chart-filter { display: grid; gap: 6px; margin: 10px 0; }
+.energy label, .chart-filter { display: grid; min-width: 0; gap: 7px; margin: 10px 0; font-weight: 600; }
 .energy input, .energy select, .energy textarea, .chart-filter select { width: 100%; }
+.energy input:focus, .energy textarea:focus, select:focus { border-color: var(--lime); box-shadow: 0 0 0 2px #d6ff5326; outline: none; }
+.energy input::file-selector-button { margin-right: 9px; padding: 7px 10px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--control); color: var(--ink); font: inherit; cursor: pointer; }
 .energy textarea { min-height: 100px; margin-top: 8px; resize: vertical; }
 .energy table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .energy td, .energy th { padding: 6px 2px; text-align: left; border-bottom: 1px solid var(--line); }
-.energy td button { width: auto; padding: 6px 9px; margin: 0; }
+.energy td button { width: 44px; min-height: 44px; margin: 0; padding: 0; text-align: center; }
 .line-chart { margin: 14px 0; padding: 5px 0 10px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
 .line-chart svg { display: block; width: 100%; max-height: 390px; }
 .line-chart text { fill: var(--mute); font-size: 12px; font-variant-numeric: tabular-nums; }
@@ -147,20 +157,23 @@ button, .filebtn { cursor: pointer; }
 .progress-summary, .progress-target { font-size: 13px; line-height: 1.6; }
 .progress-target { padding: 12px; border-left: 2px solid var(--lime); border-radius: 8px; background: var(--paper); }
 .keypad-overlay { position: fixed; inset: 0; z-index: 30; display: flex; align-items: end; justify-content: center; background: #06090bb8; backdrop-filter: blur(5px); }
-.keypad-panel { width: min(440px, 100%); padding: 16px 18px calc(18px + env(safe-area-inset-bottom)); background: var(--panel); border: 1px solid var(--line); border-radius: 22px 22px 0 0; }
+.keypad-panel { width: min(440px, 100%); padding: 16px 18px calc(18px + env(safe-area-inset-bottom)); background: linear-gradient(165deg, #202a31, var(--panel) 55%); border: 1px solid var(--control-border); border-radius: 24px 24px 0 0; box-shadow: 0 20px 70px #0008; }
 .keypad-top, .keypad-actions { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .keypad-title { font-size: 15px; font-weight: 800; }
 .keypad-sub { margin-top: 4px; color: var(--mute); font-size: 12px; }
-.keypad-display { margin: 10px 0; min-height: 48px; padding: 8px; border-radius: 10px; background: var(--paper); text-align: center; font-size: 25px; font-weight: 800; overflow-wrap: anywhere; }
+.keypad-display { margin: 12px 0; min-height: 56px; padding: 10px; border: 1px solid var(--control-border); border-radius: 14px; background: var(--bg); color: var(--lime); text-align: center; font-size: 28px; font-weight: 800; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .keypad-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-.keypad-grid button { min-height: 48px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font-size: 19px; }
+.keypad-grid button { min-height: 48px; border: 1px solid var(--control-border); border-radius: 12px; background: linear-gradient(160deg, #27323a, #1b242a); box-shadow: var(--control-edge); color: var(--ink); font-size: 19px; font-weight: 700; }
+.keypad-grid .key-del { color: #ffb1b8; }
 .keypad-actions button { text-align: center; }
+.settings button, .filebtn, .save, .sugall, .sug, .energy button, .keypad-actions button, .keypad-grid button, .back, .keypad-close, .foot button { transition: border-color .15s, filter .15s, transform .15s; }
+:is(button, .filebtn):not(:disabled):active { filter: brightness(.86); transform: translateY(1px); }
 .hide { display: none !important; }
 
 @media (hover: hover) {
   .workcard:not(:disabled):hover { transform: translateY(-3px); border-color: var(--accent); }
   .foot button:hover { color: var(--lime); }
-  :is(.settings button, .filebtn, .sug, .sugall, .keypad-grid button):hover { border-color: var(--lime); }
+  :is(.settings button, .filebtn, .sug, .sugall, .energy button, .save, .keypad-grid button, .back, .keypad-close):hover { border-color: var(--lime); filter: brightness(1.1); }
 }
 @media (min-width: 720px) {
   .cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
