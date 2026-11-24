@@ -20,17 +20,26 @@ def scale_step(values):
     return 10 * magnitude
 
 
-def layout(volume, progress):
-    """Lay out two series of [day offset, value] pairs on a 30-day axis."""
+def layout(volume, progress, last_day):
+    """Lay out two series of [day offset, value] pairs through last_day."""
     left, right, top, bottom = 57, 343, 27, 167
+    span = max(1, last_day)
+
+    def date_position(day):
+        return left + day * (right - left) / span
+
     result = []
     for series in [volume, progress]:
         step = scale_step([pair[1] for pair in series])
         ticks = [[i * step, bottom - i * (bottom - top) / 4] for i in range(5)]
         points = [
-            [left + day * (right - left) / 29, bottom - value * (bottom - top) / (4 * step)]
+            [date_position(day), bottom - value * (bottom - top) / (4 * step)]
             for day, value in series
         ]
         result.append([ticks, points])
-    dates = [[day, left + day * (right - left) / 29] for day in [0, 10, 20, 29]]
+    intervals = min(4, span)
+    dates = [
+        [day, date_position(day)]
+        for day in [floor(i * last_day / intervals) for i in range(intervals + 1)]
+    ] if last_day > 0 else [[0, left]]
     return [result[0], result[1], dates, left, right, bottom]
