@@ -422,6 +422,25 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
 .page-dots button { display: grid; place-items: center; width: 44px; height: 38px; padding: 0; border: 0; background: none; }
 .page-dots span { width: 7px; height: 7px; border-radius: 999px; background: var(--mute); transition: width .18s, background .18s; }
 .page-dots [aria-current="true"] span { width: 20px; background: var(--pink); }
+.page-names { gap: 3px; }
+.page-names button {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+  padding-inline: 3px;
+  border-bottom: 2px solid transparent;
+  color: var(--mute);
+  font-size: clamp(10px, 2.9vw, 13px);
+  font-weight: 700;
+  line-height: 1.15;
+}
+.page-names button[aria-current="true"] { color: var(--pink); border-bottom-color: currentColor; }
+[data-food-status]:empty { display: none; }
+.today-food-list { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.today-food-list li { overflow-wrap: anywhere; }
+.today-food-list header { flex-wrap: nowrap; }
+.today-food-list header strong { min-width: 0; }
+.today-food-list [data-delete-food] { flex: none; min-height: 44px; }
 .nutrition-today {
   display: grid;
   gap: clamp(12px, 2dvh, 24px);
@@ -629,6 +648,46 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
 .macro-save:hover, .profile-save:hover { filter: brightness(1.06); }
 .macro-form .macro-status { color: #ffd8e2; }
 .macro-status:empty { margin-top: -1em; }
+.food-entry-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(720px, calc(100% - 24px));
+  max-width: none;
+  max-height: calc(100dvh - 24px);
+  margin: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: transparent;
+  color: var(--ink);
+}
+.food-entry-dialog::backdrop { background: #09090bb8; }
+.food-entry-form {
+  gap: 8px;
+  padding: clamp(10px, 1.6vw, 16px);
+  border-radius: 14px;
+}
+.food-entry-form .macro-field-grid { gap: 6px; }
+.food-entry-form .macro-field {
+  gap: 2px;
+  padding: 5px 9px;
+  border-radius: 9px;
+}
+.food-entry-form .macro-field-label { font-size: 12px; }
+.food-entry-form .macro-value { align-items: center; min-width: 0; }
+.food-entry-form .macro-value input { min-height: 32px; font-size: 16px; letter-spacing: normal; }
+.food-entry-form .food-name-field {
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.food-entry-form .food-name-field input { font-weight: 500; }
+.food-entry-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.food-entry-form .macro-save { min-height: 44px; padding: 7px 14px; }
+.food-entry-form > p:empty { display: none; }
+@media (min-width: 560px) {
+  .food-entry-form .macro-field-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
 .body-profile, .profile-layout { display: grid; gap: clamp(12px, 2dvh, 22px); }
 .body-profile > h2 { margin: 0; font-size: clamp(23px, 4vw, 36px); letter-spacing: -.06em; }
 .profile-weight {

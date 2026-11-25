@@ -1,4 +1,4 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=28"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=31"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
 const routines={push:['Landmine Press','Bench Press','Incline Smith Machine Press','Incline Dumbbell Press','Dips','Lateral Raise Combo (Lateral / Front / Overhead Press)','Tricep Extension','Tricep Pushdown'],pull:['Weighted Pull-up','Seated Cable Row','Barbell Row','Face Pull','Rear Delt Cable Fly','Cable Biceps Curl','Hammer Curl','Wrist Combo (Curl / Reverse Curl / Twist)'],leg:['Jump Squat','Deadlift','Leg Press','Lunge Combo','Leg Extension','Leg Curl','Calf Kick','Abs']};const I=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;const colors={push:'#ffb6c8',pull:'#f6afd2',leg:'#ffc2d1'},icons={push:I('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),pull:I('<path d="M3 4h18M8 4v5M16 4v5"/><circle cx="12" cy="12" r="2.6"/><path d="M9 21v-3.5a3 3 0 0 1 6 0V21"/>'),leg:I('<path d="M4 20h5v-5h5v-5h6"/><path d="M15 5h5v5M20 5l-6 6"/>')},IC={cal:I('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),home:I('<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>'),stats:I('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'),set:I('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),next:I('<path d="M9 6l6 6-6 6"/>')};let view='home',routine='push',date=todayStr();let data={};try{data=JSON.parse(localStorage.getItem('dzGymLogV2')||'{}')}catch{}const app=document.getElementById('app');const fmt=d=>d.split('-').reverse().join('/');const key=(r,d,i)=>`${r}_${d}_${i}`;const stored=(r,d,i)=>data[key(r,d,i)]||{};function persist(){localStorage.setItem('dzGymLogV2',JSON.stringify(data))}function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const has=v=>v&&(v.set||v.rep||v.kg);
 function sessions(r){const s=new Set();for(const k of Object.keys(data)){const m=k.match(/^([a-z]+)_(\d{4}-\d\d-\d\d)_\d+$/);if(m&&m[1]===r&&has(data[k]))s.add(m[2])}return[...s].sort()}
@@ -464,7 +464,7 @@ function pageIndex(track) {
   return Math.round(track.scrollTop / Math.max(1, track.clientHeight));
 }
 
-function renderPagedView(title, subtitle, panels) {
+function renderPagedView(title, subtitle, panels, showPageNames = false) {
   const previous = app.querySelector(`[data-paged-view="${view}"] .page-track`);
   const page = previous ? pageIndex(previous) : 0;
   const innerScroll = previous?.children[page]?.scrollTop ?? 0;
@@ -473,8 +473,8 @@ function renderPagedView(title, subtitle, panels) {
     <div class="page-track" tabindex="0" role="region" aria-label="${title}">
       ${panels.map(([name, content]) => `<section class="paged-panel" aria-label="${name}">${content}</section>`).join('')}
     </div>
-    <div class="page-dots" role="group" aria-label="Chọn mục">
-      ${panels.map(([name]) => `<button type="button" aria-label="${name}"><span></span></button>`).join('')}
+    <div class="page-dots${showPageNames ? ' page-names' : ''}" role="group" aria-label="Chọn mục">
+      ${panels.map(([name]) => `<button type="button" aria-label="${name}">${showPageNames ? name : '<span></span>'}</button>`).join('')}
     </div>
   </div>${footer(view)}`;
   const track = app.querySelector('.page-track');
@@ -511,7 +511,7 @@ function render() {
   document.documentElement.classList.toggle('screen-locked', view !== 'work');
   ({ home, work, stats, settings, nutrition }[view] || home)();
   refreshScrollEffects();
-  if (view === 'stats') {
+  if (view === 'stats' || view === 'nutrition') {
     const midnight = new Date();
     midnight.setHours(24, 0, 0, 0);
     analyticsDayTimer = setTimeout(render, midnight.getTime() - Date.now());
@@ -694,20 +694,20 @@ function gymPanel() {
   </section>`;
 }
 function saveGym(e){e.preventDefault();if(!allowTrainingEdit(routine))return;let f=new FormData(e.target);gym[routine+'_'+date]={minutes:+f.get('minutes'),met:+f.get('met'),weight:ep.weight};saveE();render()}function deleteGym(){if(!allowTrainingEdit(routine))return;delete gym[routine+'_'+date];saveE();render()}
-function nutritionReading(value, unit) {
+function nutritionReading(value, unit, decimals = 0) {
   if (!Number.isFinite(value)) return '<strong>—</strong>';
-  return `<strong>${enFmt(value)}</strong> <span class="nutrition-unit">${unit}</span>`;
+  return `<strong>${enFmt(value, decimals)}</strong> <span class="nutrition-unit">${unit}</span>`;
 }
 
-function nutritionMetrics(items, unit) {
+function nutritionMetrics(items, unit, decimals = 0) {
   return `<dl class="nutrition-metrics">${items.map(([label, value]) => `
     <div class="nutrition-metric">
-      <dt>${label}</dt><dd>${nutritionReading(value, unit)}</dd>
+      <dt>${label}</dt><dd>${nutritionReading(value, unit, decimals)}</dd>
     </div>`).join('')}</dl>`;
 }
 
-function nutritionToday(day) {
-  const meal = meals[day];
+function nutritionToday(day, foodTotal) {
+  const meal = foodTotal ?? meals[day];
   const eaten = meal?.[0];
   const hasIntake = Number.isFinite(eaten);
   const base = baseE();
@@ -727,14 +727,14 @@ function nutritionToday(day) {
       <div class="calorie-lead">
         <h3 id="calorie-title">Mục tiêu năng lượng</h3>
         <p class="calorie-goal">${nutritionReading(goal, 'kcal')}</p>
-        <button class="nutrition-macro-link" type="button">${hasIntake ? 'Sửa macro' : 'Nhập macro'} ${IC.next}</button>
+        <button class="nutrition-macro-link" type="button">${foodTotal ? 'Xem macro' : hasIntake ? 'Sửa macro' : 'Nhập macro'} ${IC.next}</button>
       </div>
       <div class="calorie-dial" style="--goal-progress:${progress}%" role="img"
         aria-label="${hasRatio ? percent + ' mục tiêu' : hasIntake ? 'Không có tỷ lệ mục tiêu' : 'Chưa ghi lượng calo đã ăn'}">
         <div class="calorie-dial-label" aria-hidden="true"><strong>${percent}</strong><span>mục tiêu</span></div>
       </div>
       <dl class="calorie-breakdown">
-        <div><dt>Đã ăn</dt><dd>${nutritionReading(eaten, 'kcal')}</dd></div>
+        <div><dt>Đã ăn</dt><dd>${nutritionReading(eaten, 'kcal', 6)}</dd></div>
         <div><dt>${balance < 0 ? 'Vượt mục tiêu' : 'Còn thiếu'}</dt><dd>${nutritionReading(Math.abs(balance), 'kcal')}</dd></div>
       </dl>
     </section>
@@ -744,7 +744,7 @@ function nutritionToday(day) {
     </section>
     <section class="nutrition-detail nutrition-macros" aria-labelledby="nutrition-macros">
       <h3 id="nutrition-macros">Dưỡng chất đã ăn</h3>
-      ${nutritionMetrics([['Protein', meal?.[1]], ['Carb', meal?.[2]], ['Fat', meal?.[3]]], 'g')}
+      ${nutritionMetrics([['Protein', meal?.[1]], ['Carb', meal?.[2]], ['Fat', meal?.[3]]], 'g', 6)}
     </section>
   </div>`;
 }
@@ -757,27 +757,31 @@ const macroFields = [
 ];
 const macroPageName = 'Nhập macro hôm nay';
 
-function macroForm(day) {
-  const meal = meals[day];
+function macroInputs(values, readOnly = false) {
+  return `<div class="macro-field-grid">
+    ${macroFields.map(([name, label, unit], index) => `
+      <label class="macro-field">
+        <span class="macro-field-label">${label}</span>
+        <span class="macro-value">
+          <input name="${name}" type="number" inputmode="decimal" min="0" step="any" ${readOnly ? 'readonly' : 'required'}
+            placeholder="0" value="${Number.isFinite(values?.[index]) ? values[index] : ''}">
+          <span class="macro-unit">${unit}</span>
+        </span>
+      </label>`).join('')}
+  </div>`;
+}
+
+function macroForm(day, foodTotal) {
+  const meal = foodTotal ?? meals[day];
   return `<div class="macro-entry">
     <header class="nutrition-today-heading">
       <h2>${macroPageName}</h2>
       <time datetime="${day}">${IC.cal}<span>${fmt(day)}</span></time>
     </header>
     <form class="macro-form" data-day="${day}">
-      <p>Nhập tổng lượng đã ăn trong ngày.</p>
-      <div class="macro-field-grid">
-        ${macroFields.map(([name, label, unit], index) => `
-          <label class="macro-field">
-            <span class="macro-field-label">${label}</span>
-            <span class="macro-value">
-              <input name="${name}" type="number" inputmode="decimal" min="0" step="any" required
-                placeholder="0" value="${Number.isFinite(meal?.[index]) ? meal[index] : ''}">
-              <span class="macro-unit">${unit}</span>
-            </span>
-          </label>`).join('')}
-      </div>
-      <button class="macro-save" type="submit">Lưu macro</button>
+      <p>${foodTotal ? 'Tổng tự động từ danh sách Bữa ăn hôm nay.' : 'Nhập tổng lượng đã ăn trong ngày.'}</p>
+      ${macroInputs(meal, Boolean(foodTotal))}
+      ${foodTotal ? '' : '<button class="macro-save" type="submit">Lưu macro</button>'}
       <p class="macro-status" role="status"></p>
     </form>
   </div>`;
@@ -787,6 +791,7 @@ function saveTodayMacros(event) {
   event.preventDefault();
   const form = event.currentTarget;
   const day = todayStr();
+  if (foodMacroTotal(loadE(foodLogKey, {})[day])) return;
   const status = form.querySelector('.macro-status');
   if (day !== form.dataset.day) {
     form.dataset.day = day;
@@ -835,13 +840,175 @@ function exportMealLog() {
   setTimeout(() => URL.revokeObjectURL(link.href), 1000);
 }
 
+const foodLogKey = 'dzFoodLog';
+const foodPageName = 'Bữa ăn hôm nay';
+
+function foodMacroTotal(foods) {
+  if (!foods) return null;
+  return macroFields.map((_, index) =>
+    Number(foods.reduce((sum, food) => sum + (food.values?.[index] ?? 0), 0).toFixed(6)));
+}
+// USDA Standard Reference, rice NDB 20345 and broiled pork chop NDB 10064.
+const foodPresets = new Map([
+  ['com trang', { serving: '100 g cơm chín', values: [130, 2.7, 28.2, 0.3] }],
+  ['suon nuong', { serving: '100 g thịt sườn nướng', values: [195, 26.7, 0, 9.2] }],
+  ['com suon', { serving: '200 g cơm và 100 g thịt sườn nướng, chưa tính nước sốt và đồ ăn kèm', values: [455, 32.1, 56.3, 9.8] }]
+]);
+
+function foodNameKey(name) {
+  const key = name.trim().toLowerCase().normalize('NFD').replace(/\p{M}/gu, '').replaceAll('đ', 'd').replace(/\s+/g, ' ');
+  return key === 'com tam suon' || key === 'com suon nuong' ? 'com suon' : key;
+}
+
+function suggestFoodNutrition(event) {
+  const form = event.currentTarget.form;
+  const key = foodNameKey(event.currentTarget.value);
+  if (form.dataset.foodKey === key) return;
+  form.dataset.foodKey = key;
+  const log = loadE(foodLogKey, {});
+  let learned;
+  for (const day of Object.keys(log).sort().reverse()) {
+    learned = log[day].findLast(food => food.values && foodNameKey(food.name) === key);
+    if (learned) break;
+  }
+  const preset = foodPresets.get(key);
+  const values = learned?.values ?? preset?.values;
+  macroFields.forEach(([name], index) => {
+    const input = form.elements.namedItem(name);
+    if (input.value && input.value !== input.dataset.suggested) return;
+    input.value = values?.[index] ?? '';
+    input.dataset.suggested = input.value;
+  });
+  form.querySelector('[data-food-suggestion]').textContent = learned
+    ? 'Đã gợi ý theo lần lưu gần nhất. Bạn có thể chỉnh theo khẩu phần.'
+    : preset
+      ? `Ước tính cho ${preset.serving}. Bạn có thể chỉnh theo khẩu phần.`
+      : key ? 'Món mới. Nhập dưỡng chất để ứng dụng ghi nhớ cho lần sau.' : '';
+}
+
+function todayFoodList(foods) {
+  if (!foods.length) return '<p class="hint">Hôm nay chưa có món ăn nào.</p>';
+  return `<ul class="today-food-list">${foods.map((food, index) => {
+    const name = esc(typeof food === 'string' ? food : food.name);
+    return `<li class="journal-entry">
+      <header>
+        <strong>${name}</strong>
+        <button type="button" data-delete-food="${index}" aria-label="Xóa món ${name}">Xóa</button>
+      </header>
+      ${food.values ? `<dl>${macroFields.map(([, label, unit], index) =>
+        `<div><dt>${label}</dt><dd>${enFmt(food.values[index], 1)} <small>${unit}</small></dd></div>`).join('')}</dl>` : ''}
+    </li>`;
+  }).join('')}</ul>`;
+}
+
+function todayFoodPanel(day, foods) {
+  return `<div class="data-screen">
+    <header class="journal-heading">
+      <h2>${foodPageName}</h2>
+      <button class="journal-export" type="button" data-add-food aria-haspopup="dialog" aria-controls="today-food-dialog">+ Thêm món ăn</button>
+    </header>
+    <dialog id="today-food-dialog" class="food-entry-dialog" aria-label="Thêm món ăn">
+      <form id="today-food-form" class="macro-form food-entry-form" data-day="${day}">
+        <label class="macro-field food-name-field">
+          <span class="macro-field-label">Tên món ăn</span>
+          <span class="macro-value">
+            <input name="foodName" type="text" maxlength="120" placeholder="Ví dụ: cơm sườn" required autofocus>
+          </span>
+        </label>
+        <p data-food-suggestion aria-live="polite"></p>
+        ${macroInputs()}
+        <div class="food-entry-actions">
+          <button class="journal-export" type="button" data-close-food>Hủy</button>
+          <button class="macro-save" type="submit">Lưu món ăn</button>
+        </div>
+        <p class="macro-status" data-food-error role="status"></p>
+      </form>
+    </dialog>
+    <p class="hint" data-food-status role="status"></p>
+    <div data-today-food-list>${todayFoodList(foods)}</div>
+  </div>`;
+}
+
+function saveTodayFood(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const name = form.elements.foodName.value.trim();
+  const status = form.querySelector('[data-food-error]');
+  if (!name) {
+    status.textContent = 'Nhập tên món ăn.';
+    form.elements.foodName.focus();
+    return;
+  }
+  const values = macroFields.map(([field]) => form.elements.namedItem(field).valueAsNumber);
+  if (values.some(value => !Number.isFinite(value) || value < 0)) {
+    status.textContent = 'Nhập đủ bốn thông số từ 0 trở lên.';
+    return;
+  }
+  const day = todayStr();
+  if (day !== form.dataset.day) {
+    render();
+    app.querySelector('[data-food-status]').textContent = 'Đã sang ngày mới. Hãy thêm món ăn cho hôm nay.';
+    return;
+  }
+  try {
+    const foodLog = loadE(foodLogKey, {});
+    foodLog[day] = [...(foodLog[day] || []), { name, values }];
+    localStorage.setItem(foodLogKey, JSON.stringify(foodLog));
+  } catch {
+    status.textContent = 'Chưa lưu được món ăn. Vui lòng thử lại.';
+    return;
+  }
+  form.closest('dialog').close();
+  render();
+  app.querySelector('[data-add-food]').focus({ preventScroll: true });
+  app.querySelector('[data-food-status]').textContent = 'Đã thêm món ăn.';
+}
+
 function nutrition() {
   const day = todayStr();
+  const savedFoods = loadE(foodLogKey, {})[day];
+  const foodTotal = foodMacroTotal(savedFoods);
+  let foods = savedFoods || [];
   renderPagedView('NUTRITION', 'Năng lượng & dưỡng chất', [
-    ['Hôm nay', nutritionToday(day)],
-    [macroPageName, macroForm(day)],
+    ['Hôm nay', nutritionToday(day, foodTotal)],
+    [foodPageName, todayFoodPanel(day, foods)],
+    [macroPageName, macroForm(day, foodTotal)],
     ['Nhật ký', nutritionJournal()]
-  ]);
+  ], true);
+  const foodDialog = app.querySelector('#today-food-dialog');
+  const foodForm = app.querySelector('#today-food-form');
+  const addFood = app.querySelector('[data-add-food]');
+  const foodList = app.querySelector('[data-today-food-list]');
+  foodForm.elements.foodName.addEventListener('input', suggestFoodNutrition);
+  addFood.addEventListener('click', () => foodDialog.showModal());
+  foodDialog.querySelector('[data-close-food]').addEventListener('click', () => foodDialog.close());
+  foodForm.addEventListener('submit', saveTodayFood);
+  foodList.addEventListener('click', event => {
+    const button = event.target.closest('[data-delete-food]');
+    if (!button) return;
+    const index = Number(button.dataset.deleteFood);
+    const log = loadE(foodLogKey, {});
+    const latest = log[day] || [];
+    if (JSON.stringify(latest) === JSON.stringify(foods)) {
+      latest.splice(index, 1);
+      log[day] = latest;
+      try {
+        localStorage.setItem(foodLogKey, JSON.stringify(log));
+      } catch (error) {
+        console.error('Không lưu được danh sách món ăn sau khi xóa.', error);
+        return;
+      }
+      render();
+      const next = app.querySelector(`[data-delete-food="${Math.min(index, latest.length - 1)}"]`);
+      (next || app.querySelector('[data-add-food]')).focus({ preventScroll: true });
+      return;
+    }
+    app.querySelector('[data-food-status]').textContent = '';
+    foods = latest;
+    foodList.innerHTML = todayFoodList(foods);
+    const next = foodList.querySelector(`[data-delete-food="${Math.min(index, foods.length - 1)}"]`);
+    (next || addFood).focus();
+  });
   app.querySelector('.macro-form').addEventListener('submit', saveTodayMacros);
   app.querySelectorAll('[data-delete-meal]').forEach(button => button.addEventListener('click', () => removeMeal(button.dataset.deleteMeal)));
   app.querySelectorAll('.nutrition-macro-link, [data-open-macro]').forEach(button => button.addEventListener('click', () => {
@@ -915,6 +1082,7 @@ function energyForecast() {
 }
 addEventListener('storage', event => {
   if (event.key === 'dzcalolog' || event.key === null) meals = loadE('dzcalolog', {});
+  if (view === 'nutrition' && (event.key === foodLogKey || event.key === 'dzcalolog' || event.key === null)) render();
   if (event.key === 'dzGymLogV2' || event.key === null) data = loadE('dzGymLogV2', {});
   else if (event.key !== 'dzGymEnergy') return;
   gym = loadE('dzGymEnergy', {});
@@ -923,7 +1091,7 @@ addEventListener('storage', event => {
 });
 document.addEventListener('visibilitychange', () => {
   if (document.hidden || date === todayStr()) return;
-  if (view === 'stats') {
+  if (view === 'stats' || view === 'nutrition') {
     render();
     return;
   }
