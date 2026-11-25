@@ -1,4 +1,4 @@
-<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=31"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090b"><link rel="manifest" href="manifest.webmanifest"><link rel="icon" href="icon-192.png"><link rel="apple-touch-icon" href="icon-180.png"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="apple-mobile-web-app-title" content="DZ Gym"><title>DZ Gym Log</title><link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="interface.css?v=32"><script src="chart-layout.js?v=2"></script></head><body><main class="app" id="app"></main><script>
 const routines={push:['Landmine Press','Bench Press','Incline Smith Machine Press','Incline Dumbbell Press','Dips','Lateral Raise Combo (Lateral / Front / Overhead Press)','Tricep Extension','Tricep Pushdown'],pull:['Weighted Pull-up','Seated Cable Row','Barbell Row','Face Pull','Rear Delt Cable Fly','Cable Biceps Curl','Hammer Curl','Wrist Combo (Curl / Reverse Curl / Twist)'],leg:['Jump Squat','Deadlift','Leg Press','Lunge Combo','Leg Extension','Leg Curl','Calf Kick','Abs']};const I=p=>`<svg class="i" viewBox="0 0 24 24">${p}</svg>`;const colors={push:'#ffb6c8',pull:'#f6afd2',leg:'#ffc2d1'},icons={push:I('<path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/>'),pull:I('<path d="M3 4h18M8 4v5M16 4v5"/><circle cx="12" cy="12" r="2.6"/><path d="M9 21v-3.5a3 3 0 0 1 6 0V21"/>'),leg:I('<path d="M4 20h5v-5h5v-5h6"/><path d="M15 5h5v5M20 5l-6 6"/>')},IC={cal:I('<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/>'),home:I('<path d="M3 11l9-8 9 8M5 10v10h5v-6h4v6h5V10"/>'),stats:I('<path d="M4 20V10M10 20V4M16 20v-8M22 20H2"/>'),set:I('<path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/>'),next:I('<path d="M9 6l6 6-6 6"/>')};let view='home',routine='push',date=todayStr();let data={};try{data=JSON.parse(localStorage.getItem('dzGymLogV2')||'{}')}catch{}const app=document.getElementById('app');const fmt=d=>d.split('-').reverse().join('/');const key=(r,d,i)=>`${r}_${d}_${i}`;const stored=(r,d,i)=>data[key(r,d,i)]||{};function persist(){localStorage.setItem('dzGymLogV2',JSON.stringify(data))}function todayStr(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 const has=v=>v&&(v.set||v.rep||v.kg);
 function sessions(r){const s=new Set();for(const k of Object.keys(data)){const m=k.match(/^([a-z]+)_(\d{4}-\d\d-\d\d)_\d+$/);if(m&&m[1]===r&&has(data[k]))s.add(m[2])}return[...s].sort()}
@@ -150,8 +150,12 @@ function work() {
 function esc(s){return String(s).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;')}function count(){return Object.keys(data).filter(k=>Object.values(data[k]||{}).some(v=>String(v).trim())).length}function dayTypes(d){return Object.keys(routines).filter(r=>routines[r].some((_,i)=>{let v=stored(r,d,i);return v.set||v.rep||v.kg}))}function stats() {
   renderPagedView('Thống kê', 'Theo dõi quá trình tập luyện', [
     ['Dự báo cân nặng', energyForecast()],
-    ['Biểu đồ', analytics()]
-  ]);
+    ['Biểu đồ tập', analytics()],
+    ['Cân nặng', weightLogPanel()]
+  ], true);
+  const form = app.querySelector('#weight-log-form');
+  form.elements.day.addEventListener('change', () => updateWeightLog(form));
+  form.addEventListener('submit', saveDailyWeight);
 }
 function settings() {
   renderPagedView('Cài đặt', 'Hồ sơ và dữ liệu tập luyện', [
@@ -1036,6 +1040,81 @@ function saveMeals(updated) {
   localStorage.setItem('dzcalolog', JSON.stringify(updated));
   meals = updated;
 }
+const weightLogKey = 'dzWeightLog';
+
+function weightLogPanel() {
+  const day = todayStr();
+  const weights = loadE(weightLogKey, {});
+  return `<section class="weight-log" aria-labelledby="weight-log-title">
+    <h2 id="weight-log-title">Cân nặng mỗi ngày</h2>
+    <form id="weight-log-form" class="macro-form">
+      <div class="weight-log-fields">
+        <label class="macro-field">
+          <span class="macro-field-label">Ngày cân</span>
+          <input class="weight-log-date" name="day" type="date" value="${day}" max="${day}" required>
+        </label>
+        <label class="macro-field">
+          <span class="macro-field-label">Cân nặng</span>
+          <span class="macro-value">
+            <input name="kg" type="number" inputmode="decimal" min="0.01" step="0.01" value="${Number.isFinite(weights[day]) ? weights[day] : ''}" required>
+            <span class="macro-unit">kg</span>
+          </span>
+        </label>
+      </div>
+      <button class="macro-save" type="submit">Lưu cân nặng</button>
+      <p class="macro-status" role="status"></p>
+    </form>
+    <div data-weight-chart>${weightBarChart(day, weights)}</div>
+  </section>`;
+}
+
+function weightBarChart(end, weights) {
+  const days = Array.from({ length: 7 }, (_, i) => offsetTrainingDay(end, i - 6));
+  const hasWeight = value => Number.isFinite(value) && value > 0;
+  const max = Math.max(0, ...days.map(day => hasWeight(weights[day]) ? weights[day] : 0));
+  return `<section class="weight-chart" aria-labelledby="weight-chart-title">
+    <h3 id="weight-chart-title">Cân nặng trong 7 ngày (kg)</h3>
+    ${max ? `<ol class="weight-bars" role="list">${days.map(day => {
+      const kg = weights[day];
+      const label = hasWeight(kg) ? enFmt(kg, 2) : '—';
+      const height = hasWeight(kg) ? kg / max * 80 : 0;
+      return `<li aria-label="${fmt(day)}: ${height ? label + ' kg' : 'chưa ghi'}">
+        <div class="weight-bar-track" aria-hidden="true">
+          <span class="weight-bar" style="--weight-height:${height}%"><span>${label}</span></span>
+        </div>
+        <time datetime="${day}">${fmt(day).slice(0, 5)}</time>
+      </li>`;
+    }).join('')}</ol>` : '<p class="hint">Chưa có số cân trong 7 ngày này.</p>'}
+  </section>`;
+}
+
+function updateWeightLog(form, weights = loadE(weightLogKey, {})) {
+  const day = form.elements.day;
+  if (!day.validity.valid) return;
+  const kg = weights[day.value];
+  form.elements.kg.value = Number.isFinite(kg) ? kg : '';
+  form.querySelector('.macro-status').textContent = '';
+  app.querySelector('[data-weight-chart]').innerHTML = weightBarChart(day.value, weights);
+}
+
+function saveDailyWeight(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  if (!form.reportValidity()) return;
+  const day = form.elements.day.value;
+  const kg = form.elements.kg.valueAsNumber;
+  const status = form.querySelector('.macro-status');
+  const weights = { ...loadE(weightLogKey, {}), [day]: kg };
+  try {
+    localStorage.setItem(weightLogKey, JSON.stringify(weights));
+  } catch {
+    status.textContent = 'Chưa lưu được cân nặng. Vui lòng thử lại.';
+    return;
+  }
+  updateWeightLog(form, weights);
+  status.textContent = 'Đã lưu ' + enFmt(kg, 2) + ' kg ngày ' + fmt(day) + '.';
+}
+
 function energyForecast() {
   const end = todayStr();
   const calendar = Array.from({ length: 7 }, (_, i) => offsetTrainingDay(end, i - 6));

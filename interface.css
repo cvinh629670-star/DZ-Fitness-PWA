@@ -775,6 +775,62 @@ select, .energy input, .energy textarea { min-width: 0; min-height: 48px; paddin
 .profile-metrics dd strong { font-size: clamp(17px, 3vw, 28px); font-variant-numeric: tabular-nums; letter-spacing: -.05em; }
 .profile-metrics > div:first-child strong { color: var(--pink); }
 .profile-estimates .hint { margin: 8px 0 0; }
+.weight-log { display: grid; gap: 12px; }
+.weight-log h2 { margin: 0; font-size: clamp(23px, 4vw, 36px); letter-spacing: -.055em; }
+.weight-log-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.weight-log-date {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  color-scheme: dark;
+  font: inherit;
+  font-size: 14px;
+}
+.weight-log .macro-status:empty { display: none; }
+.weight-chart {
+  padding: clamp(10px, 2vw, 20px);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+.weight-chart h3 { margin: 0 0 8px; font-size: 14px; }
+.weight-bars {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: clamp(2px, 1vw, 10px);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.weight-bar-track {
+  position: relative;
+  height: clamp(115px, 24dvh, 210px);
+  border-bottom: 1px solid var(--line);
+}
+.weight-bar {
+  position: absolute;
+  inset: auto 18% 0;
+  height: var(--weight-height);
+  border-radius: 5px 5px 0 0;
+  background: linear-gradient(var(--pink), #b45e7d);
+}
+.weight-bar span {
+  position: absolute;
+  bottom: calc(100% + 3px);
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--ink);
+  font-size: clamp(9px, 2.7vw, 12px);
+  font-weight: 700;
+}
+.weight-bars time { display: block; margin-top: 4px; color: var(--mute); font-size: clamp(9px, 2.7vw, 12px); }
 .weight-forecast { display: grid; gap: clamp(10px, 2dvh, 22px); }
 .weight-forecast h2 { margin: 0; font-size: clamp(23px, 4vw, 36px); letter-spacing: -.06em; }
 .forecast-horizons { display: grid; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); gap: clamp(7px, 1.4vw, 16px); }
