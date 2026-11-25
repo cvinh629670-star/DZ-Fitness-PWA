@@ -685,11 +685,11 @@ const loadE=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))||d}catch{retu
 let ep={sex:5,age:20,height:179,weight:62,goal:70,days:90,activity:1.35,...loadE('dzEnergyProfile',{})}, meals=loadE('dzcalolog',{}), gym=loadE('dzGymEnergy',{});
 function saveE(){localStorage.setItem('dzEnergyProfile',JSON.stringify(ep));localStorage.setItem('dzGymEnergy',JSON.stringify(gym))}
 const enFmt=(n,d=0)=>Number(n).toLocaleString('vi-VN',{maximumFractionDigits:d});const et=(a,b)=>`<div class="etile"><small>${a}</small><b>${b}</b></div>`;
-function baseE(){return (10*ep.weight+6.25*ep.height-5*ep.age+ep.sex)*ep.activity}function burn(x){return Math.max(0,(x.met-1)*3.5*x.weight/200*x.minutes)}function dayBurn(d){return Object.entries(gym).filter(([k])=>k.endsWith('_'+d)).reduce((a,[k,x])=>a+burn(x),0)}function extraE(){return (ep.goal-ep.weight)*7700/ep.days}function targetE(d){return baseE()+dayBurn(d)+extraE()}
+function baseE(){return (10*currentWeight()+6.25*ep.height-5*ep.age+ep.sex)*ep.activity}function burn(x){return Math.max(0,(x.met-1)*3.5*x.weight/200*x.minutes)}function dayBurn(d){return Object.entries(gym).filter(([k])=>k.endsWith('_'+d)).reduce((a,[k,x])=>a+burn(x),0)}function extraE(){return (ep.goal-currentWeight())*7700/ep.days}function targetE(d){return baseE()+dayBurn(d)+extraE()}
 const profileMeasurements = [
   ['age', 'Tuổi', 'tuổi', 18, 100],
   ['height', 'Chiều cao', 'cm', 100, 250],
-  ['weight', 'Cân nặng', 'kg', 30, 300]
+  ['weight', 'Cân nặng', 'kg', 0.01]
 ];
 const profileGoals = [
   ['goal', 'Cân nặng mục tiêu', 'kg', 30, 300],
@@ -700,7 +700,7 @@ function profileNumbers(fields) {
   return fields.map(([name, label, unit, min, max]) => `<label class="profile-field">
     <span class="profile-field-name">${label}</span>
     <span class="profile-value">
-      <input name="${name}" type="number" inputmode="decimal" min="${min}" max="${max}" step="any" required value="${esc(ep[name])}">
+      <input name="${name}" type="number" inputmode="decimal" min="${min}" ${max ? `max="${max}"` : ''} step="any" required value="${esc(name === 'weight' ? currentWeight() : ep[name])}">
       <span class="profile-unit">${unit}</span>
     </span>
   </label>`).join('');
@@ -709,10 +709,10 @@ function profileNumbers(fields) {
 function profilePanel() {
   const base = baseE();
   const delta = extraE();
-  const change = ep.goal - ep.weight;
+  const change = ep.goal - currentWeight();
   const metrics = [
     ['Calo cần ăn hôm nay', nutritionReading(targetE(todayStr()), 'kcal')],
-    ['Protein tham khảo', `<strong>${enFmt(ep.weight * 1.6)}–${enFmt(ep.weight * 2.2)}</strong> <span class="nutrition-unit">g</span>`],
+    ['Protein tham khảo', `<strong>${enFmt(currentWeight() * 1.6)}–${enFmt(currentWeight() * 2.2)}</strong> <span class="nutrition-unit">g</span>`],
     ['BMR', nutritionReading(base / ep.activity, 'kcal')],
     ['TDEE ngoài gym', nutritionReading(base, 'kcal')]
   ];
@@ -721,7 +721,7 @@ function profilePanel() {
     <div class="profile-layout">
       <div class="profile-weight">
         <dl>
-          <div><dt>Cân nặng hiện tại</dt><dd>${enFmt(ep.weight, 2)} <span>kg</span></dd></div>
+          <div><dt>Cân nặng hiện tại</dt><dd>${enFmt(currentWeight(), 2)} <span>kg</span></dd></div>
           <div class="profile-weight-target"><dt>Mục tiêu</dt><dd>${enFmt(ep.goal, 2)} <span>kg</span></dd></div>
         </dl>
         <p>${change > 0 ? '+' : ''}${enFmt(change, 2)} kg trong ${enFmt(ep.days, 2)} ngày</p>
@@ -769,8 +769,16 @@ function profilePanel() {
 
 function saveProfile(event) {
   event.preventDefault();
-  for (const [name, value] of new FormData(event.currentTarget)) ep[name] = Number(value);
-  saveE();
+  const form = event.currentTarget;
+  const profile = Object.fromEntries([...new FormData(form)].map(([name, value]) => [name, Number(value)]));
+  try {
+    if (profile.weight !== currentWeight()) storeDailyWeight(todayStr(), profile.weight);
+    localStorage.setItem('dzEnergyProfile', JSON.stringify(profile));
+    ep = profile;
+  } catch {
+    form.querySelector('.profile-status').textContent = 'Chưa lưu được hồ sơ. Vui lòng thử lại.';
+    return;
+  }
   render();
   app.querySelector('.profile-status').textContent = 'Đã lưu hồ sơ.';
 }
@@ -806,7 +814,7 @@ function gymPanel() {
     </footer>
   </section>`;
 }
-function saveGym(e){e.preventDefault();if(!allowTrainingEdit(routine))return;let f=new FormData(e.target);gym[routine+'_'+date]={minutes:+f.get('minutes'),met:+f.get('met'),weight:ep.weight};saveE();render()}function deleteGym(){if(!allowTrainingEdit(routine))return;delete gym[routine+'_'+date];saveE();render()}
+function saveGym(e){e.preventDefault();if(!allowTrainingEdit(routine))return;let f=new FormData(e.target);gym[routine+'_'+date]={minutes:+f.get('minutes'),met:+f.get('met'),weight:currentWeight()};saveE();render()}function deleteGym(){if(!allowTrainingEdit(routine))return;delete gym[routine+'_'+date];saveE();render()}
 function nutritionReading(value, unit, decimals = 0) {
   if (!Number.isFinite(value)) return '<strong>—</strong>';
   return `<strong>${enFmt(value, decimals)}</strong> <span class="nutrition-unit">${unit}</span>`;
@@ -1151,6 +1159,25 @@ function saveMeals(updated) {
 }
 const weightLogKey = 'dzWeightLog';
 
+function currentWeight() {
+  const today = todayStr();
+  let latest = '';
+  let weight = ep.weight;
+  for (const [day, kg] of Object.entries(loadE(weightLogKey, {}))) {
+    if (day > latest && day <= today && Number.isFinite(kg) && kg > 0) {
+      latest = day;
+      weight = kg;
+    }
+  }
+  return weight;
+}
+
+function storeDailyWeight(day, kg) {
+  const weights = { ...loadE(weightLogKey, {}), [day]: kg };
+  localStorage.setItem(weightLogKey, JSON.stringify(weights));
+  return weights;
+}
+
 function weightLogPanel() {
   const day = todayStr();
   const weights = loadE(weightLogKey, {});
@@ -1165,7 +1192,7 @@ function weightLogPanel() {
         <label class="macro-field">
           <span class="macro-field-label">Cân nặng</span>
           <span class="macro-value">
-            <input name="kg" type="number" inputmode="decimal" min="0.01" step="0.01" value="${Number.isFinite(weights[day]) ? weights[day] : ''}" required>
+            <input name="kg" type="number" inputmode="decimal" min="0.01" step="any" value="${Number.isFinite(weights[day]) ? weights[day] : ''}" required>
             <span class="macro-unit">kg</span>
           </span>
         </label>
@@ -1213,9 +1240,9 @@ function saveDailyWeight(event) {
   const day = form.elements.day.value;
   const kg = form.elements.kg.valueAsNumber;
   const status = form.querySelector('.macro-status');
-  const weights = { ...loadE(weightLogKey, {}), [day]: kg };
+  let weights;
   try {
-    localStorage.setItem(weightLogKey, JSON.stringify(weights));
+    weights = storeDailyWeight(day, kg);
   } catch {
     status.textContent = 'Chưa lưu được cân nặng. Vui lòng thử lại.';
     return;
@@ -1276,6 +1303,8 @@ function energyForecast() {
   </section>`;
 }
 addEventListener('storage', event => {
+  if (event.key === 'dzEnergyProfile') ep = { ...ep, ...loadE('dzEnergyProfile', {}) };
+  if ((event.key === weightLogKey || event.key === 'dzEnergyProfile') && ['stats', 'settings', 'nutrition'].includes(view)) render();
   if (event.key === 'dzcalolog' || event.key === null) meals = loadE('dzcalolog', {});
   if (view === 'nutrition' && (event.key === foodLogKey || event.key === 'dzcalolog' || event.key === null)) render();
   if (event.key === 'dzGymLogV2' || event.key === null) data = loadE('dzGymLogV2', {});
