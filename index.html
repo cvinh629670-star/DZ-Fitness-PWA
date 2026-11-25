@@ -796,7 +796,7 @@ function saveTodayMacros(event) {
   const entered = macroFields.map(([name]) => form.elements.namedItem(name).valueAsNumber);
   if (auto !== Boolean(foodTotal) || (auto && (day !== form.dataset.day || foodTotal.some((value, index) => value !== entered[index])))) {
     render();
-    app.querySelector('.macro-status').textContent = 'Dữ liệu đã thay đổi. Kiểm tra số liệu rồi nhấn Lưu macro.';
+    app.querySelector('.macro-entry .macro-status').textContent = 'Dữ liệu đã thay đổi. Kiểm tra số liệu rồi nhấn Lưu macro.';
     return;
   }
   const status = form.querySelector('.macro-status');
@@ -820,7 +820,7 @@ function saveTodayMacros(event) {
     return;
   }
   render();
-  app.querySelector('.macro-status').textContent = 'Đã lưu macro ngày ' + fmt(day) + '.';
+  app.querySelector('.macro-entry .macro-status').textContent = 'Đã lưu macro ngày ' + fmt(day) + '.';
 }
 
 function nutritionJournal() {
@@ -1016,7 +1016,7 @@ function nutrition() {
     const next = foodList.querySelector(`[data-delete-food="${Math.min(index, foods.length - 1)}"]`);
     (next || addFood).focus();
   });
-  app.querySelector('.macro-form').addEventListener('submit', saveTodayMacros);
+  app.querySelector('.macro-entry .macro-form').addEventListener('submit', saveTodayMacros);
   app.querySelectorAll('[data-delete-meal]').forEach(button => button.addEventListener('click', () => removeMeal(button.dataset.deleteMeal)));
   app.querySelectorAll('.nutrition-macro-link, [data-open-macro]').forEach(button => button.addEventListener('click', () => {
     const macroPage = app.querySelector(`.page-dots button[aria-label="${macroPageName}"]`);
